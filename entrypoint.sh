@@ -22,6 +22,43 @@ set -euo pipefail
 CONFIG_DIR=/workspace/config
 DEFAULTS_DIR=/workspace/_defaults
 
+# --- 0. Single-volume relocation (Railway / one-volume-per-service hosts) --
+# Upstream Compose/Swarm mount a separate named volume at each persistent
+# path (config, workspace, dashboard/data, memory, ADWs/logs, agent-memory,
+# claude/codex auth). Railway only allows one volume per service, so instead
+# we mount it once (default /data, override with SINGLE_VOLUME_DIR) and
+# relocate each path into it via symlink, preserving any image-baked
+# defaults (config seeds, memory seeds) on first boot.
+SINGLE_VOLUME_DIR="${SINGLE_VOLUME_DIR:-/data}"
+if [ -d "$SINGLE_VOLUME_DIR" ]; then
+    relocate_to_volume() {
+        local target="$1" name="$2"
+        local dest="$SINGLE_VOLUME_DIR/$name"
+        [ -L "$target" ] && return 0
+        mkdir -p "$(dirname "$target")"
+        if [ ! -e "$dest" ]; then
+            mkdir -p "$dest"
+            if [ -d "$target" ]; then
+                shopt -s dotglob nullglob
+                cp -a "$target"/. "$dest"/ 2>/dev/null || true
+                shopt -u dotglob nullglob
+            fi
+        fi
+        rm -rf "$target"
+        ln -sfn "$dest" "$target"
+    }
+
+    relocate_to_volume /workspace/config              config
+    relocate_to_volume /workspace/workspace            workspace
+    relocate_to_volume /workspace/dashboard/data       dashboard-data
+    relocate_to_volume /workspace/memory               memory
+    relocate_to_volume /workspace/ADWs/logs            adw-logs
+    relocate_to_volume /workspace/.claude/agent-memory agent-memory
+    mkdir -p /root
+    relocate_to_volume /root/.claude                   claude-auth
+    relocate_to_volume /root/.codex                    codex-auth
+fi
+
 # --- 1. Ensure writable dirs exist (volumes may mount empty) ---------------
 mkdir -p "$CONFIG_DIR" \
          /workspace/workspace \
