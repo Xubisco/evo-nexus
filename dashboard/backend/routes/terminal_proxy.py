@@ -156,6 +156,15 @@ def register_websocket_proxy(sock) -> None:
         target = f"{TERMINAL_WS_BASE}/ws"
         try:
             upstream = create_connection(target, timeout=10)
+            # `timeout` above only bounds the connect handshake, but
+            # websocket-client also applies it as the socket's blocking
+            # timeout for every subsequent recv(). Left at 10s, an idle
+            # PTY (no upstream output for 10s) raises a timeout inside
+            # _pump_upstream_to_client, which the bare except treats as a
+            # dead connection and tears down the whole bridge — causing a
+            # reconnect loop roughly every 10s and dropping any input that
+            # was mid-flight. Clear it so idle periods don't kill the link.
+            upstream.sock.settimeout(None)
         except Exception as exc:
             log.warning("terminal_proxy: upstream WS connect failed: %s", exc)
             try:
