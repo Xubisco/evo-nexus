@@ -63,10 +63,22 @@ def _resolve_safe(path: str, *, require_admin: bool = False) -> Path:
     # 2. Resolve to absolute path
     full = (REPO_ROOT / path).resolve()
 
-    # 3. Must be inside REPO_ROOT
-    try:
-        rel = full.relative_to(REPO_ROOT.resolve())
-    except ValueError:
+    # 3. Must be inside REPO_ROOT — or, on single-volume hosts (Railway),
+    # inside one of the resolved workspace/admin roots. entrypoint.sh's
+    # single-volume relocation turns `workspace/` (and the admin roots)
+    # into symlinks pointing at the mounted volume (e.g. /data/workspace),
+    # which lives outside REPO_ROOT once resolved. Without this, every
+    # request under workspace/ would trip "path traversal" even though it
+    # never left an allowed root.
+    _real_roots = [REPO_ROOT.resolve(), WORKSPACE_DIR.resolve()] + [r.resolve() for r in ADMIN_ROOTS]
+    rel = None
+    for root in _real_roots:
+        try:
+            rel = full.relative_to(root)
+            break
+        except ValueError:
+            continue
+    if rel is None:
         _audit("denied", path_str, result="denied", reason="path_traversal")
         abort(403, description="Path traversal detected")
 
@@ -146,11 +158,25 @@ def _audit(op: str, path: str, *, result: str = "ok", **extra):
 
 
 def _repo_rel(full: Path) -> str:
-    """Return the repo-root-relative path as a forward-slash string."""
+    """Return the repo-root-relative path as a forward-slash string.
+
+    On single-volume hosts (Railway), workspace/ and the admin roots may be
+    symlinks pointing at the mounted volume outside REPO_ROOT (see
+    entrypoint.sh's single-volume relocation). Fall back to reconstructing
+    the virtual repo-relative path from whichever resolved root matched,
+    instead of leaking the real (e.g. /data/...) path to the frontend.
+    """
     try:
         return str(full.relative_to(REPO_ROOT.resolve())).replace("\\", "/")
     except ValueError:
-        return str(full).replace("\\", "/")
+        pass
+    for root, virtual_name in [(WORKSPACE_DIR, "workspace")] + [(r, r.name) for r in ADMIN_ROOTS]:
+        try:
+            rel = full.relative_to(root.resolve())
+            return (virtual_name if str(rel) == "." else f"{virtual_name}/{rel}").replace("\\", "/")
+        except ValueError:
+            continue
+    return str(full).replace("\\", "/")
 
 
 def _stat_entry(entry: Path, base: Path) -> dict | None:
