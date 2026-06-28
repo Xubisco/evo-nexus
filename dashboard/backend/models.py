@@ -1141,11 +1141,17 @@ class BrainRepoConfig(db.Model):
 
 
 def needs_setup() -> bool:
-    """Check if the system needs initial setup (no users exist)."""
+    """Check if the system needs initial setup (no users exist).
+
+    Fails *open* (False = setup already done) rather than closed: a
+    transient DB error (e.g. SQLite "database is locked" under a burst of
+    concurrent requests) must not lock out an already-configured instance
+    by forcing every API call through the "setup required" 403 gate.
+    """
     try:
         return User.query.count() == 0
     except Exception:
-        return True
+        return False
 
 
 def needs_onboarding(user) -> bool:

@@ -74,6 +74,12 @@ if not _brain_key:
 
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{WORKSPACE / 'dashboard' / 'data' / 'evonexus.db'}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# Threaded dev server (app.run(threaded=True)) means several requests can hit
+# SQLite at once. WAL mode (below) lets readers and a writer coexist, but
+# under a burst of concurrent writes SQLite still raises "database is
+# locked" with the sqlite3 driver's default 5s busy timeout. Raise it so
+# contending requests wait instead of failing outright.
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"connect_args": {"timeout": 30}}
 app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=30)
 # SameSite=Strict prevents cross-origin cookie riding (CSRF defense layer 1).
 app.config["SESSION_COOKIE_SAMESITE"] = "Strict"
