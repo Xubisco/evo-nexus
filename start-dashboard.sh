@@ -2,18 +2,23 @@
 # ============================================================================
 # start-dashboard.sh — multi-process entrypoint for the dashboard container.
 #
-# The dashboard needs TWO processes running simultaneously:
+# The dashboard needs THREE processes running simultaneously:
 #   * Flask backend        → :8080   (/api/*, static SPA, OAuth, Providers...)
 #   * Node terminal-server → :32352  (/terminal/*, embedded CLI sessions)
+#   * scheduler.py         → (no port) drives Moderninha's automated routines
 #
 # The React frontend calls /terminal/* on the same origin and expects the
 # reverse proxy (Traefik) to route it to :32352. If the terminal-server is
 # not running inside the container, every "open agent chat" click fails
 # with "Could not reach terminal-server".
 #
-# This wrapper starts both processes, then exec-waits. If EITHER dies, we
-# kill the other and exit with a non-zero code so Docker/Swarm restarts
-# the whole container — keeping both processes in sync.
+# scheduler.py has to run in this same container because it depends on the
+# Claude Code CLI credentials/OAuth login, which live on this service's
+# volume — Railway doesn't support sharing a volume across services.
+#
+# This wrapper starts all three processes, then exec-waits. If ANY of them
+# dies, we kill the others and exit with a non-zero code so Docker/Swarm
+# restarts the whole container — keeping all three processes in sync.
 # ============================================================================
 set -euo pipefail
 
@@ -83,17 +88,23 @@ TERMINAL_PID=$!
 uv run python /workspace/dashboard/backend/app.py &
 FLASK_PID=$!
 
-# When this script exits for any reason, kill both children
+# Start the routine scheduler in the background
+uv run python /workspace/scheduler.py &
+SCHEDULER_PID=$!
+echo "[start-dashboard] scheduler.py started (PID ${SCHEDULER_PID})"
+
+# When this script exits for any reason, kill all children
 # shellcheck disable=SC2317  # invoked by trap below
 cleanup() {
-    echo "[start-dashboard] shutting down (terminal=${TERMINAL_PID}, flask=${FLASK_PID})"
-    kill "${TERMINAL_PID}" "${FLASK_PID}" 2>/dev/null || true
+    echo "[start-dashboard] shutting down (terminal=${TERMINAL_PID}, flask=${FLASK_PID}, scheduler=${SCHEDULER_PID})"
+    kill "${TERMINAL_PID}" "${FLASK_PID}" "${SCHEDULER_PID}" 2>/dev/null || true
     wait "${TERMINAL_PID}" 2>/dev/null || true
     wait "${FLASK_PID}" 2>/dev/null || true
+    wait "${SCHEDULER_PID}" 2>/dev/null || true
 }
 trap cleanup EXIT INT TERM
 
-# Wait for EITHER process to exit, then propagate the exit code. Swarm
+# Wait for ANY process to exit, then propagate the exit code. Swarm
 # restart_policy will bring the whole container back up on any failure.
 wait -n
 EXIT_CODE=$?
