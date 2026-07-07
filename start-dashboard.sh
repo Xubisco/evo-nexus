@@ -88,8 +88,14 @@ TERMINAL_PID=$!
 uv run python /workspace/dashboard/backend/app.py &
 FLASK_PID=$!
 
-# Start the routine scheduler in the background
-uv run python /workspace/scheduler.py &
+# Start the routine scheduler in the background.
+# PYTHONUNBUFFERED=1 (equivalent to `python -u`): scheduler.py's own prints
+# (startup banner, per-routine ✓/✗ lines) are low-volume enough to sit in
+# Python's default block-buffered stdout indefinitely when it's not a TTY —
+# invisible in Railway/Docker logs even though the process is alive and
+# working. Without this, there is no way to confirm from the logs that
+# routines are actually firing.
+PYTHONUNBUFFERED=1 uv run python /workspace/scheduler.py &
 SCHEDULER_PID=$!
 echo "[start-dashboard] scheduler.py started (PID ${SCHEDULER_PID})"
 
