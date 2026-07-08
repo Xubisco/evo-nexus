@@ -53,6 +53,7 @@ if [ -d "$SINGLE_VOLUME_DIR" ]; then
     relocate_to_volume /workspace/dashboard/data       dashboard-data
     relocate_to_volume /workspace/memory               memory
     relocate_to_volume /workspace/ADWs/logs            adw-logs
+    relocate_to_volume /workspace/ADWs/routines/custom adw-custom-routines
     relocate_to_volume /workspace/.claude/agent-memory agent-memory
     mkdir -p /root
     relocate_to_volume /root/.claude                   claude-auth
