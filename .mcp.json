@@ -35,6 +35,13 @@
     "intercom": {
       "type": "http",
       "url": "https://mcp.intercom.com/mcp"
+    },
+    "vault": {
+      "type": "http",
+      "url": "http://evonexus-vault.railway.internal:8080/mcp",
+      "headers": {
+        "Authorization": "Bearer ${VAULT_AUTH_TOKEN}"
+      }
     }
   }
 }

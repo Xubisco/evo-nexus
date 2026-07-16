@@ -181,6 +181,10 @@ class ClaudeBridge {
         'SSH_AUTH_SOCK', 'SSH_AGENT_PID',
         'NVM_DIR', 'NVM_BIN', 'NVM_INC',
         'CODEX_HOME', 'CLAUDE_CONFIG_DIR',
+        // Low-value token that only unlocks narrow, mostly-read-only vault
+        // MCP tools over Railway private networking — needed for .mcp.json's
+        // ${VAULT_AUTH_TOKEN} interpolation in the vault server's headers.
+        'VAULT_AUTH_TOKEN',
       ];
       const cleanEnv = {};
       for (const key of SYSTEM_VARS) {
