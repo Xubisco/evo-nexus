@@ -445,30 +445,43 @@ def summary(results: list, title: str = "Completed"):
 
 
 def send_telegram(text: str, chat_id: str = None) -> bool:
-    """Send a Telegram message via bot API (no MCP dependency).
+    """Send a Telegram message via the evonexus-vault /notify endpoint.
 
-    Reads TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID from environment.
+    The bot token and chat_id live only in the vault (Railway sealed vars,
+    private networking) — this process only holds VAULT_AUTH_TOKEN, a
+    low-value credential that unlocks nothing but this narrow endpoint.
+    The vault always sends to its one pinned operator chat; `chat_id` is
+    accepted for backward compatibility but has no effect (no caller
+    currently overrides it — see .env.example / vault README).
     Returns True if sent successfully, False otherwise.
     """
+    import json as _json
     import urllib.request
-    import urllib.parse
 
-    token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-    cid = chat_id or os.environ.get("TELEGRAM_CHAT_ID", "")
-    if not token or not cid:
-        console.print("  [warning]⚠ Telegram not configured (missing BOT_TOKEN or CHAT_ID)[/warning]")
+    vault_token = os.environ.get("VAULT_AUTH_TOKEN", "")
+    if not vault_token:
+        console.print("  [warning]⚠ Telegram not configured (missing VAULT_AUTH_TOKEN)[/warning]")
         return False
+    if chat_id:
+        console.print(f"  [warning]⚠ chat_id override ignored — vault sends to its pinned chat only[/warning]")
 
     try:
-        payload = urllib.parse.urlencode({"chat_id": cid, "text": text, "parse_mode": "HTML"}).encode()
-        url = f"https://api.telegram.org/bot{token}/sendMessage"
-        req = urllib.request.Request(url, data=payload, method="POST")
+        url = "http://evonexus-vault.railway.internal:8080/notify"
+        payload = _json.dumps({"text": text}).encode()
+        req = urllib.request.Request(
+            url, data=payload, method="POST",
+            headers={
+                "Authorization": f"Bearer {vault_token}",
+                "Content-Type": "application/json",
+            },
+        )
         with urllib.request.urlopen(req, timeout=10) as resp:
-            ok = resp.status == 200
+            body = _json.loads(resp.read())
+            ok = bool(body.get("ok"))
         if ok:
-            console.print("  [success]✓[/success] Telegram enviado")
+            console.print("  [success]✓[/success] Telegram enviado (via vault)")
         else:
-            console.print(f"  [warning]⚠ Telegram status {resp.status}[/warning]")
+            console.print(f"  [warning]⚠ Vault recusou: {body.get('error')}[/warning]")
         return ok
     except Exception as e:
         console.print(f"  [warning]⚠ Telegram error: {e}[/warning]")
