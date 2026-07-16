@@ -8,7 +8,7 @@
 | **GitHub** | MCP + CLI (gh) | PRs, issues, releases (Evolution repos) |
 | **Canva** | MCP | Create and edit designs and presentations |
 | **Notion** | MCP | Knowledge base |
-| **Telegram** | MCP + Bot | Messages, notifications, commands |
+| **Telegram** | MCP (vault) | Notifications only. Bot token/chat_id live in the `evonexus-vault` Railway service (sealed vars, private networking) — never in `config/.env`. Agents call the `vault` MCP server's `telegram_notify(text)` tool; Python code (routines, ADWs) calls `POST http://evonexus-vault.railway.internal:8080/notify`. See `ADWs/runner.py:send_telegram()`. Sends only to the one pinned operator chat — no per-call recipient override. |
 | **Computer Use** | MCP | Desktop control (screenshots, clicks, typing) |
 | **Discord** | API | Community — channels, messages, moderation |
 | **WhatsApp** | API (Evolution) | Groups, messages, stats |
