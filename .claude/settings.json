@@ -88,6 +88,7 @@
       }
     ]
   },
+  "enableAllProjectMcpServers": true,
   "permissions": {
     "allow": [
       "Bash(make *)",
