@@ -81,6 +81,7 @@ COPY config/          config/
 COPY Makefile         ./
 COPY .env.example     ./
 COPY .mcp.json        ./
+COPY docs/             docs/
 
 # Pre-compiled terminal-server node_modules from stage 2
 COPY --from=terminal-build /terminal/node_modules dashboard/terminal-server/node_modules
