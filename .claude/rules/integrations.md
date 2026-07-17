@@ -18,6 +18,7 @@
 | **Omie** | API | ERP — clients, invoices (NF-e), financials |
 | **Bling** | API (OAuth2 auto-refresh) | Brazilian ERP — products, orders, NF-e, contacts, stock. Run `make bling-auth` once to connect |
 | **Asaas** | API | Brazilian payments — Pix, boleto, credit card, subscriptions, marketplace split |
+| **Unique Morpheus** | MCP (vault) | Moderninha's ERP — caixa, vendas, compras, estoque, metas por vendedor. Login/senha live only in `evonexus-vault` (sealed vars), never in `config/.env`. 6 read-only tools via the `vault` MCP server (`erp_caixa`, `erp_vendas`, `erp_compras_sugestao`, `erp_estoque_parado`, `erp_compras`, `erp_metas_vendedor`). Full details: [docs/integrations/unique-morpheus.md](../../docs/integrations/unique-morpheus.md) |
 | **YouTube** | API (OAuth) | Channel analytics |
 | **Instagram** | API (OAuth) | Profile analytics |
 | **LinkedIn** | API (OAuth) | Profile/org analytics |

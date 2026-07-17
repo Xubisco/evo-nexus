@@ -33,8 +33,14 @@ Model Context Protocol servers run as sidecar processes alongside Claude Code. T
 | Telegram | `plugin:telegram` | @clawdia (notifications, bot) |
 | Canva | `canva` | @pixel (designs, presentations) |
 | Notion | `claude_ai_Notion` | Knowledge base |
+| ERP Unique Morpheus | `vault` | @flux, @clawdia (caixa, vendas, compras, estoque, metas) |
 
 MCP servers are configured in `.claude/settings.json`. Claude Code starts them automatically when their tools are needed.
+
+> **`vault` is different from the others above**: it's a separate Railway
+> service (`evonexus-vault`), not a sidecar process, and it's the only MCP
+> server whose credentials are **not** in `.env` — see
+> [Unique Morpheus](unique-morpheus.md) for why and how.
 
 ### API Clients
 
@@ -116,6 +122,7 @@ See individual integration guides for setup steps:
 - [Omie](omie.md) -- Brazilian ERP: clients, invoices, financials, stock
 - [Bling](bling.md) -- Brazilian ERP: products, orders, NF-e, stock (OAuth2 with auto-refresh)
 - [Asaas](asaas.md) -- Brazilian payments: Pix, boleto, credit card, subscriptions, marketplace split
+- [Unique Morpheus](unique-morpheus.md) -- Moderninha's ERP: caixa, vendas, compras, estoque, metas por vendedor (credentials in `evonexus-vault`, not `.env`)
 
 **Meetings & Tasks:**
 - [Fathom](fathom.md) -- Meeting recordings, transcripts, action items
