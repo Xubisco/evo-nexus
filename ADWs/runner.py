@@ -29,6 +29,30 @@ WORKSPACE = Path(__file__).parent.parent
 LOGS_DIR = Path(__file__).parent / "logs"
 LOGS_DIR.mkdir(exist_ok=True)
 
+# Whitelist for the spawned CLI process env — mirrors
+# dashboard/terminal-server/src/claude-bridge.js's SYSTEM_VARS and
+# dashboard/backend/heartbeat_runner.py's _HEARTBEAT_SYSTEM_VARS. Routines
+# run unattended on a schedule (see ROUTINES.md) — they shouldn't inherit
+# every credential in config/.env just because the Python process that
+# launched them did.
+_SYSTEM_VARS = [
+    "HOME", "USER", "SHELL", "PATH", "LANG", "LC_ALL", "LC_CTYPE",
+    "LOGNAME", "HOSTNAME", "XDG_RUNTIME_DIR", "XDG_DATA_HOME",
+    "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "TMPDIR",
+    "SSH_AUTH_SOCK", "SSH_AGENT_PID",
+    "NVM_DIR", "NVM_BIN", "NVM_INC",
+    "CODEX_HOME", "CLAUDE_CONFIG_DIR",
+    "ANTHROPIC_API_KEY",
+    # Low-value token unlocking narrow vault MCP tools (Telegram notify,
+    # ERP/Meta Ads/Mercado Pago reads) via .mcp.json's ${VAULT_AUTH_TOKEN}.
+    "VAULT_AUTH_TOKEN",
+    # DataCrazy — the only non-vault integration a routine actually uses
+    # today (top5_executivo.py). Everything else still in config/.env
+    # (Stripe, Omie, Asaas, Bling, etc.) is deliberately left out — add
+    # on demand if/when a routine actually needs one.
+    "DATACRAZY_API_BASE_URL", "DATACRAZY_API_TOKEN",
+]
+
 def _timestamp():
     return datetime.now().strftime("%Y%m%d-%H%M%S")
 
@@ -138,7 +162,8 @@ def _spawn_cli(cli_command: str, prompt: str, agent: str | None, provider_env: d
         base_args.extend(["--agent", agent])
     base_args.append(prompt)
 
-    env = {**os.environ, **provider_env, "TERM": "dumb"}
+    clean_env = {k: os.environ[k] for k in _SYSTEM_VARS if k in os.environ}
+    env = {**clean_env, **provider_env, "TERM": "dumb"}
     popen_kwargs = dict(
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
