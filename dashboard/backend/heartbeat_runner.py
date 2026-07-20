@@ -36,6 +36,40 @@ DB_PATH = WORKSPACE / "dashboard" / "data" / "evonexus.db"
 LOGS_DIR = WORKSPACE / "ADWs" / "logs" / "heartbeats"
 AGENTS_DIR = WORKSPACE / ".claude" / "agents"
 
+# Whitelist for the spawned `claude` process env — mirrors
+# dashboard/terminal-server/src/claude-bridge.js's SYSTEM_VARS so heartbeats
+# (which run unattended, no human watching) get the same reduced exposure
+# as interactive terminal sessions, instead of inheriting the full process
+# env (which sources config/.env via entrypoint.sh's `set -a`).
+_HEARTBEAT_SYSTEM_VARS = [
+    "HOME", "USER", "SHELL", "PATH", "LANG", "LC_ALL", "LC_CTYPE",
+    "LOGNAME", "HOSTNAME", "XDG_RUNTIME_DIR", "XDG_DATA_HOME",
+    "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "TMPDIR",
+    "SSH_AUTH_SOCK", "SSH_AGENT_PID",
+    "NVM_DIR", "NVM_BIN", "NVM_INC",
+    "CODEX_HOME", "CLAUDE_CONFIG_DIR",
+    # The LLM provider credential itself — not a business integration
+    # secret, the CLI cannot run at all without it.
+    "ANTHROPIC_API_KEY", "OPENAI_API_KEY", "OPENAI_BASE_URL",
+    "OPENAI_MODEL", "CLAUDE_CODE_EXECUTABLE",
+    # Low-value token that only unlocks narrow vault MCP tools (Telegram
+    # notify, ERP/Meta Ads/Mercado Pago reads) over Railway private
+    # networking — needed for .mcp.json's ${VAULT_AUTH_TOKEN}.
+    "VAULT_AUTH_TOKEN",
+    # DataCrazy — the only non-vault integration a heartbeat actually uses
+    # today (top5_executivo.py reads these directly to call the CRM API).
+    # Everything else still in config/.env (Stripe, Omie, Asaas, Bling,
+    # etc.) is deliberately left out here — nothing in heartbeats uses them
+    # yet; add on demand if/when a routine actually needs one, same as
+    # this DataCrazy entry.
+    "DATACRAZY_API_BASE_URL", "DATACRAZY_API_TOKEN",
+]
+
+
+def _heartbeat_env() -> dict:
+    """Clean env for the spawned `claude` process — see _HEARTBEAT_SYSTEM_VARS."""
+    return {k: os.environ[k] for k in _HEARTBEAT_SYSTEM_VARS if k in os.environ}
+
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
@@ -257,6 +291,7 @@ def step7_invoke_claude(
             text=True,
             cwd=str(WORKSPACE),
             start_new_session=True,  # new process group for clean kill
+            env=_heartbeat_env(),
         )
 
         try:
