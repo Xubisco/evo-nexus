@@ -9,6 +9,8 @@
 | **Canva** | MCP | Create and edit designs and presentations |
 | **Notion** | MCP | Knowledge base |
 | **Telegram** | MCP (vault) | Notifications only. Bot token/chat_id live in the `evonexus-vault` Railway service (sealed vars, private networking) — never in `config/.env`. Agents call the `vault` MCP server's `telegram_notify(text)` tool; Python code (routines, ADWs) calls `POST http://evonexus-vault.railway.internal:8080/notify`. See `ADWs/runner.py:send_telegram()`. Sends only to the one pinned operator chat — no per-call recipient override. |
+| **Meta Ads** | MCP (vault) | Read-only insights for the "Moderninha Móveis" ad account. Token is a Meta Business Manager System User token, scope `ads_read` only (no campaign creation/editing). `vault` MCP tool: `meta_ads_insights(data_inicio?, data_fim?)`. |
+| **Mercado Pago** | MCP (vault) | Transaction statement (received + sent payments) for 2 accounts, "SHS" and "SP". Vault holds each account's OAuth Client ID/Secret and exchanges them for a `scope=read` access token per call (never the static full-access token from the MP dashboard) — a `read`-scoped token can only do `GET`. `vault` MCP tool: `mp_extrato(conta, data_inicio?, data_fim?)`, via `GET /v1/payments/search` (paginated automatically). |
 | **Computer Use** | MCP | Desktop control (screenshots, clicks, typing) |
 | **Discord** | API | Community — channels, messages, moderation |
 | **WhatsApp** | API (Evolution) | Groups, messages, stats |

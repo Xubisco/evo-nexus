@@ -34,6 +34,8 @@ Model Context Protocol servers run as sidecar processes alongside Claude Code. T
 | Canva | `canva` | @pixel (designs, presentations) |
 | Notion | `claude_ai_Notion` | Knowledge base |
 | ERP Unique Morpheus | `vault` | @flux, @clawdia (caixa, vendas, compras, estoque, metas) |
+| Meta Ads | `vault` | @flux, @clawdia (insights de anúncios, somente leitura) |
+| Mercado Pago | `vault` | @flux, @clawdia (extrato de transações, 2 contas) |
 
 MCP servers are configured in `.claude/settings.json`. Claude Code starts them automatically when their tools are needed.
 
@@ -123,6 +125,7 @@ See individual integration guides for setup steps:
 - [Bling](bling.md) -- Brazilian ERP: products, orders, NF-e, stock (OAuth2 with auto-refresh)
 - [Asaas](asaas.md) -- Brazilian payments: Pix, boleto, credit card, subscriptions, marketplace split
 - [Unique Morpheus](unique-morpheus.md) -- Moderninha's ERP: caixa, vendas, compras, estoque, metas por vendedor (credentials in `evonexus-vault`, not `.env`)
+- [Mercado Pago](vault-integrations.md#mercado-pago) -- Transaction statement (received + sent) for 2 accounts, read-only (credentials in `evonexus-vault`, not `.env`)
 
 **Meetings & Tasks:**
 - [Fathom](fathom.md) -- Meeting recordings, transcripts, action items
@@ -136,6 +139,7 @@ See individual integration guides for setup steps:
 - [YouTube](youtube.md) -- Channel stats, videos, engagement (OAuth)
 - [Instagram](instagram.md) -- Profile, posts, engagement (Graph API + OAuth)
 - [LinkedIn](linkedin.md) -- Profile and org stats (OAuth)
+- [Meta Ads](vault-integrations.md#meta-ads) -- Ad account insights, read-only (credentials in `evonexus-vault`, not `.env`)
 
 **Development:**
 - [GitHub](github.md) -- PRs, issues, releases via MCP + CLI
