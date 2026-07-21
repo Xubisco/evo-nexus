@@ -163,7 +163,11 @@ def _spawn_cli(cli_command: str, prompt: str, agent: str | None, provider_env: d
     base_args.append(prompt)
 
     clean_env = {k: os.environ[k] for k in _SYSTEM_VARS if k in os.environ}
-    env = {**clean_env, **provider_env, "TERM": "dumb"}
+    # IS_SANDBOX=1 — temporary stopgap: the container runs as root and
+    # Claude Code refuses --dangerously-skip-permissions + root otherwise.
+    # Does NOT reduce root's blast radius, only accepts the risk. Proper
+    # fix is a non-root container user (tracked separately, not done yet).
+    env = {**clean_env, **provider_env, "TERM": "dumb", "IS_SANDBOX": "1"}
     popen_kwargs = dict(
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
