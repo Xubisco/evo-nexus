@@ -53,16 +53,14 @@ _HEARTBEAT_SYSTEM_VARS = [
     "ANTHROPIC_API_KEY", "OPENAI_API_KEY", "OPENAI_BASE_URL",
     "OPENAI_MODEL", "CLAUDE_CODE_EXECUTABLE",
     # Low-value token that only unlocks narrow vault MCP tools (Telegram
-    # notify, ERP/Meta Ads/Mercado Pago reads) over Railway private
-    # networking — needed for .mcp.json's ${VAULT_AUTH_TOKEN}.
-    "VAULT_AUTH_TOKEN",
-    # DataCrazy — the only non-vault integration a heartbeat actually uses
-    # today (top5_executivo.py reads these directly to call the CRM API).
+    # notify, ERP/Meta Ads/Mercado Pago/DataCrazy reads) over Railway
+    # private networking — needed for .mcp.json's ${VAULT_AUTH_TOKEN}.
+    # DataCrazy migrated here from its own direct env vars on 2026-07-24
+    # (mirrors the same change in ADWs/runner.py's _SYSTEM_VARS).
     # Everything else still in config/.env (Stripe, Omie, Asaas, Bling,
     # etc.) is deliberately left out here — nothing in heartbeats uses them
-    # yet; add on demand if/when a routine actually needs one, same as
-    # this DataCrazy entry.
-    "DATACRAZY_API_BASE_URL", "DATACRAZY_API_TOKEN",
+    # yet; add on demand if/when a routine actually needs one.
+    "VAULT_AUTH_TOKEN",
 ]
 
 
