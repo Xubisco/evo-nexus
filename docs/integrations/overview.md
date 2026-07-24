@@ -36,6 +36,7 @@ Model Context Protocol servers run as sidecar processes alongside Claude Code. T
 | ERP Unique Morpheus | `vault` | @flux, @clawdia (caixa, vendas, compras, estoque, metas) |
 | Meta Ads | `vault` | @flux, @clawdia (insights de anúncios, somente leitura) |
 | Mercado Pago | `vault` | @flux, @clawdia (extrato de transações, 2 contas) |
+| DataCrazy | `vault` | @nex, @clawdia (leads, conversas, negócios, atendentes — CRM de atendimento online) |
 
 MCP servers are configured in `.claude/settings.json`. Claude Code starts them automatically when their tools are needed.
 
@@ -126,6 +127,7 @@ See individual integration guides for setup steps:
 - [Asaas](asaas.md) -- Brazilian payments: Pix, boleto, credit card, subscriptions, marketplace split
 - [Unique Morpheus](unique-morpheus.md) -- Moderninha's ERP: caixa, vendas, compras, estoque, metas por vendedor (credentials in `evonexus-vault`, not `.env`)
 - [Mercado Pago](vault-integrations.md#mercado-pago) -- Transaction statement (received + sent) for 2 accounts, read-only (credentials in `evonexus-vault`, not `.env`)
+- [DataCrazy](datacrazy.md) -- Moderninha's CRM de atendimento online: leads, conversas, negócios, atendentes (credentials in `evonexus-vault`, not `.env`)
 
 **Meetings & Tasks:**
 - [Fathom](fathom.md) -- Meeting recordings, transcripts, action items

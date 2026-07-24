@@ -21,6 +21,7 @@
 | **Bling** | API (OAuth2 auto-refresh) | Brazilian ERP — products, orders, NF-e, contacts, stock. Run `make bling-auth` once to connect |
 | **Asaas** | API | Brazilian payments — Pix, boleto, credit card, subscriptions, marketplace split |
 | **Unique Morpheus** | MCP (vault) | Moderninha's ERP — caixa, vendas, compras, estoque, metas por vendedor. Login/senha live only in `evonexus-vault` (sealed vars), never in `config/.env`. 6 read-only tools via the `vault` MCP server (`erp_caixa`, `erp_vendas`, `erp_compras_sugestao`, `erp_estoque_parado`, `erp_compras`, `erp_metas_vendedor`). Full details: [docs/integrations/unique-morpheus.md](../../docs/integrations/unique-morpheus.md) |
+| **DataCrazy** | MCP (vault) | Moderninha's CRM de atendimento (WhatsApp/Instagram) — leads, conversas, negócios (deals), atendentes. Bearer token lives only in `evonexus-vault` (sealed vars), never in `config/.env`. 4 read-only tools via the `vault` MCP server (`datacrazy_leads`, `datacrazy_conversas`, `datacrazy_negocios`, `datacrazy_atendentes`) — `datacrazy_conversas` already works around a known API bug (broken date filter). Full details: [docs/integrations/datacrazy.md](../../docs/integrations/datacrazy.md) |
 | **YouTube** | API (OAuth) | Channel analytics |
 | **Instagram** | API (OAuth) | Profile analytics |
 | **LinkedIn** | API (OAuth) | Profile/org analytics |
