@@ -44,13 +44,13 @@ _SYSTEM_VARS = [
     "CODEX_HOME", "CLAUDE_CONFIG_DIR",
     "ANTHROPIC_API_KEY",
     # Low-value token unlocking narrow vault MCP tools (Telegram notify,
-    # ERP/Meta Ads/Mercado Pago reads) via .mcp.json's ${VAULT_AUTH_TOKEN}.
+    # ERP/Meta Ads/Mercado Pago/DataCrazy reads) via .mcp.json's
+    # ${VAULT_AUTH_TOKEN}. DataCrazy migrated here from its own direct env
+    # vars on 2026-07-24 — everything a routine actually uses today goes
+    # through the vault now. Everything else (Stripe, Omie, Asaas, Bling,
+    # etc.) is deliberately left out — add on demand if/when a routine
+    # actually needs one.
     "VAULT_AUTH_TOKEN",
-    # DataCrazy — the only non-vault integration a routine actually uses
-    # today (top5_executivo.py). Everything else still in config/.env
-    # (Stripe, Omie, Asaas, Bling, etc.) is deliberately left out — add
-    # on demand if/when a routine actually needs one.
-    "DATACRAZY_API_BASE_URL", "DATACRAZY_API_TOKEN",
 ]
 
 def _timestamp():
