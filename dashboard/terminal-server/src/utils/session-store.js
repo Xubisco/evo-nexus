@@ -9,6 +9,7 @@ class SessionStore {
         this.storageDir = options.storageDir || path.join(os.homedir(), '.claude-code-web');
         this.sessionsFile = path.join(this.storageDir, 'sessions.json');
         this.sessionTtlMs = options.sessionTtlMs ?? (24 * 60 * 60 * 1000);
+        this.activeIdleTtlMs = options.activeIdleTtlMs ?? (4 * 60 * 60 * 1000);
         this.maxFileAgeDays = options.maxFileAgeDays ?? 7;
         fsSync.mkdirSync(this.storageDir, { recursive: true });
         this.initializeStorage();
@@ -238,6 +239,18 @@ class SessionStore {
         const lastTouch = this._sessionTouchTimestamp(session, fallbackSavedAt);
         if (lastTouch === null) return false;
         return (now - lastTouch) > this.sessionTtlMs;
+    }
+
+    // Unlike isSessionStale, this is about live processes: it doesn't care
+    // whether a WebSocket is still connected (a browser tab can sit open
+    // for days without the human touching it). Any real activity — input
+    // sent or output received — resets lastActivity, so a session that's
+    // genuinely in use is never flagged here.
+    isActiveSessionIdle(session, now = Date.now()) {
+        if (!session || !session.active || session.archived) return false;
+        const lastTouch = this._sessionTouchTimestamp(session);
+        if (lastTouch === null) return false;
+        return (now - lastTouch) > this.activeIdleTtlMs;
     }
 }
 

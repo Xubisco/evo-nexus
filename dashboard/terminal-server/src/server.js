@@ -18,11 +18,21 @@ class TerminalServer {
     this.baseFolder = process.cwd();
     const ttlHours = Number(process.env.TERMINAL_SESSION_TTL_HOURS);
     const gcMinutes = Number(process.env.TERMINAL_SESSION_GC_INTERVAL_MINUTES);
+    const activeIdleHours = Number(process.env.TERMINAL_SESSION_ACTIVE_IDLE_HOURS);
     this.sessionTtlMs = options.sessionTtlMs ?? (
       Number.isFinite(ttlHours) && ttlHours > 0 ? ttlHours * 60 * 60 * 1000 : (24 * 60 * 60 * 1000)
     );
     this.sessionGcIntervalMs = options.sessionGcIntervalMs ?? (
       Number.isFinite(gcMinutes) && gcMinutes >= 0 ? gcMinutes * 60 * 1000 : (15 * 60 * 1000)
+    );
+    // How long a live PTY session (process still running, possibly still
+    // WebSocket-connected) can go with no real terminal I/O before the GC
+    // kills the underlying process. Metadata/history is kept, so the next
+    // real input transparently resumes via `claude --resume` — a browser
+    // tab left open for days shouldn't pin a claude process in memory the
+    // whole time.
+    this.activeIdleTtlMs = options.activeIdleTtlMs ?? (
+      Number.isFinite(activeIdleHours) && activeIdleHours > 0 ? activeIdleHours * 60 * 60 * 1000 : (4 * 60 * 60 * 1000)
     );
     this.autoSaveIntervalMs = options.autoSaveIntervalMs ?? 30000;
 
@@ -32,7 +42,7 @@ class TerminalServer {
     this.globalSubscribers = new Set(); // wsIds subscribed to global notifications
     this.claudeBridge = new ClaudeBridge();
     this.chatBridge = new ChatBridge();
-    this.sessionStore = new SessionStore({ sessionTtlMs: this.sessionTtlMs });
+    this.sessionStore = new SessionStore({ sessionTtlMs: this.sessionTtlMs, activeIdleTtlMs: this.activeIdleTtlMs });
     this.chatLogger = new ChatLogger(this.baseFolder);
     this.autoSaveInterval = null;
     this.sessionGcInterval = null;
@@ -186,10 +196,6 @@ class TerminalServer {
       }
     }
 
-    if (staleEntries.length === 0) {
-      return { removed: 0 };
-    }
-
     let removed = 0;
     for (const [sessionId, session] of staleEntries) {
       if (session.active) {
@@ -218,8 +224,32 @@ class TerminalServer {
       }
     }
 
+    // Second pass: sessions whose underlying process is still running
+    // (session.active === true, possibly still WebSocket-connected) but
+    // have had no real terminal I/O for activeIdleTtlMs. Unlike the purge
+    // above, this only kills the process — the session record stays so a
+    // future 'input'/'start_claude' resumes it (`claude --resume`).
+    let idleReaped = 0;
+    for (const [sessionId, session] of this.claudeSessions.entries()) {
+      if (!this.sessionStore.isActiveSessionIdle(session, now)) continue;
+      try {
+        await Promise.allSettled([
+          this.claudeBridge.stopSession(sessionId),
+          this.chatBridge.stopSession(sessionId),
+        ]);
+        session.active = false;
+        idleReaped += 1;
+        this.broadcastToSession(sessionId, { type: 'claude_stopped', reason: 'idle_timeout' });
+      } catch (error) {
+        if (this.dev) console.warn(`Failed to reap idle session ${sessionId}:`, error.message);
+      }
+    }
+    if (idleReaped > 0) {
+      console.log(`[session-gc] Reaped ${idleReaped} idle-but-active session process(es)`);
+    }
+
     await this.saveSessionsToDisk();
-    return { removed };
+    return { removed, idleReaped };
   }
 
   async handleShutdown() {
@@ -619,6 +649,7 @@ class TerminalServer {
           if (session && session.connections.has(wsId) && session.active && session.agent === 'claude') {
             try {
               await this.claudeBridge.sendInput(wsInfo.claudeSessionId, data.data);
+              session.lastActivity = new Date();
             } catch (error) {
               if (this.dev) console.error(`Failed to send input to session ${wsInfo.claudeSessionId}:`, error.message);
               this.sendToWebSocket(wsInfo.ws, {
@@ -981,6 +1012,7 @@ class TerminalServer {
           if (currentSession.outputBuffer.length > currentSession.maxBufferSize) {
             currentSession.outputBuffer.shift();
           }
+          currentSession.lastActivity = new Date();
           this.broadcastToSession(sessionId, { type: 'output', data });
         },
         onExit: (code, signal) => {

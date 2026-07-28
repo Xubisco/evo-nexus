@@ -114,3 +114,65 @@ test('TerminalServer purges stale sessions and reports health', async () => {
 
   server.close();
 });
+
+test('TerminalServer reaps an active session idle past the timeout, keeping its record', async () => {
+  const tempDir = makeTempDir('evonexus-terminal-server-idle-');
+  const sessionsFile = path.join(tempDir, 'sessions.json');
+  fs.writeFileSync(
+    sessionsFile,
+    JSON.stringify({ version: '1.0', savedAt: new Date().toISOString(), sessions: [] }, null, 2)
+  );
+
+  const server = new TerminalServer({
+    port: 0,
+    dev: false,
+    sessionTtlMs: 24 * 60 * 60 * 1000,
+    activeIdleTtlMs: 1000,
+    sessionGcIntervalMs: 0,
+    autoSaveIntervalMs: 0,
+  });
+
+  await server.ready;
+  server.claudeSessions = new Map();
+  server.sessionStore.storageDir = tempDir;
+  server.sessionStore.sessionsFile = sessionsFile;
+
+  const idleAt = new Date(Date.now() - 2 * 60 * 60 * 1000); // 2h ago, past the 1s test TTL
+  const recentAt = new Date();
+
+  // Idle-but-connected: a WebSocket is still attached (simulates a browser
+  // tab left open), but there has been no real input/output in hours.
+  server.claudeSessions.set('idle-active', {
+    id: 'idle-active',
+    name: 'Idle oracle session',
+    created: idleAt,
+    lastActivity: idleAt,
+    active: true,
+    archived: false,
+    connections: new Set(['fake-ws-id']),
+    workingDir: tempDir,
+  });
+
+  // Genuinely active: recent input/output, must survive the reaper.
+  server.claudeSessions.set('busy-active', {
+    id: 'busy-active',
+    name: 'Busy session',
+    created: recentAt,
+    lastActivity: recentAt,
+    active: true,
+    archived: false,
+    connections: new Set(['another-ws-id']),
+    workingDir: tempDir,
+  });
+
+  const result = await server.purgeStaleSessions();
+
+  assert.equal(result.idleReaped, 1);
+  // Process is stopped (active flips false) but the session record itself
+  // survives — a later 'input' resumes via `claude --resume`.
+  assert.equal(server.claudeSessions.has('idle-active'), true);
+  assert.equal(server.claudeSessions.get('idle-active').active, false);
+  assert.equal(server.claudeSessions.get('busy-active').active, true);
+
+  server.close();
+});
