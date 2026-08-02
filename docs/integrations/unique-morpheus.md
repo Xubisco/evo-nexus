@@ -39,6 +39,7 @@ All read-only, all validated against production data on 2026-07-17.
 | `erp_estoque_parado()` | `apiestoqueparado.php` | none | Stale stock — `DIAS_PARADO` per product, hardcoded to items ≥181 days parked |
 | `erp_compras(data_inicio?, data_fim?)` | `api_compras.php` | `dtini`, `dtfim` (default: today → effectively current month) | Purchases this month vs. suppliers, order-level detail |
 | `erp_metas_vendedor()` | `api_vendedor_meta.php` | none | Per-salesperson target vs. actual (`PERCENTUAL_ATINGIDO`) |
+| `erp_produto_busca(q)` | `api_produto_busca.php` | `q` (search term), `offset`/`limit` (auto-paginated) | Product lookup by name/code — `CODPRODUTO`, `DESC_COMPLETA`, `CURVA_ABC`/`CURVA_XYZ`, `CONSUMO_MEDIO_DIA`, `ESTQMINIMO`/`ESTQCRITICO`, `LOCALIZACAO`, `DESC_SUBGRUPO`, `FABRICANTE`, `ESTOQUE_TOTAL` |
 
 Call them through the `vault` MCP server from any agent session (any agent
 whose persona includes MCP tool access — see "Known limitation" below), or
