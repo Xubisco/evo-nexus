@@ -40,6 +40,7 @@ All read-only, all validated against production data on 2026-07-17.
 | `erp_compras(data_inicio?, data_fim?)` | `api_compras.php` | `dtini`, `dtfim` (default: today → effectively current month) | Purchases this month vs. suppliers, order-level detail |
 | `erp_metas_vendedor()` | `api_vendedor_meta.php` | none | Per-salesperson target vs. actual (`PERCENTUAL_ATINGIDO`) |
 | `erp_produto_busca(q)` | `api_produto_busca.php` | `q` (search term), `offset`/`limit` (auto-paginated) | Product lookup by name/code — `CODPRODUTO`, `DESC_COMPLETA`, `CURVA_ABC`/`CURVA_XYZ`, `CONSUMO_MEDIO_DIA`, `ESTQMINIMO`/`ESTQCRITICO`, `LOCALIZACAO`, `DESC_SUBGRUPO`, `FABRICANTE`, `ESTOQUE_TOTAL` |
+| `erp_produto_detalhe(codproduto)` | `api_produto_detalhe.php` | `codproduto` | Full product record, 5 blocks — `cabecalho` (general), `estoque` (**cost**: `CUSTO_MEDIO`/`CUSTO_REPOSICAO`/`VALOR_ULTIMA_COMPRA` per store, plus tax/freight breakdown), `vendas12` (monthly sales, 12mo), `compras` (purchase order history), `kardex` (stock movement ledger) |
 
 Call them through the `vault` MCP server from any agent session (any agent
 whose persona includes MCP tool access — see "Known limitation" below), or
@@ -107,6 +108,13 @@ Useful context for interpreting the numbers, not integration bugs:
 - **3 salespeople have no target configured** (`erp_metas_vendedor` returns
   `null` for their meta fields) — Leticia Cristina, Thais Leticia, Aline
   Renata. Not a bug; the ERP simply has no goal set for them yet.
+- **Recurring double-nested lists**: several endpoints (`api_compras.php`'s
+  `result.lista`, `api_produto_detalhe.php`'s 5 blocks) wrap their list
+  payload one level deeper than expected (`[[...]]` instead of `[...]`).
+  `erp_produto_detalhe` already unwraps this (`_unwrap_erp_list()` in
+  `evonexus-vault/server.py`); if you add a new endpoint and a list field
+  looks empty/length-1 when it shouldn't be, check for this before assuming
+  truncation or a missing param.
 
 ## Known limitation: not every agent can call these tools
 
