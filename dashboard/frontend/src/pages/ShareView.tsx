@@ -280,9 +280,9 @@ function PoweredByFooter() {
         cursor: 'pointer',
       }}
     >
-      <img src="/EVO_NEXUS.webp" alt="EvoNexus" style={{ height: '16px', width: 'auto', opacity: 0.7 }} />
+      <img src="/X-Brain-Black.PNG" alt="X-Brain" style={{ height: '16px', width: 'auto', opacity: 0.7 }} />
       <span style={{ fontSize: '11px', color: 'var(--text-muted, #667085)' }}>
-        Powered by EvoNexus
+        Powered by X-Brain
       </span>
     </a>
   )

@@ -93,7 +93,7 @@ export default function Welcome({ onFirstTime, onRestore }: WelcomeProps) {
           {/* Header */}
           <div className="px-7 pt-7 pb-5 border-b border-[#152030]">
             <div className="flex flex-col items-center gap-3">
-              <img src="/EVO_NEXUS.webp" alt="EvoNexus" className="h-8 w-auto" />
+              <img src="/X-Brain-Black.PNG" alt="X-Brain" className="h-8 w-auto" />
               <div className="text-center">
                 <h1 className="text-[16px] font-semibold text-[#e2e8f0]">{t('onboarding.welcome.title')}</h1>
                 <p className="text-[11px] text-[#4a5a6e] mt-1">{t('onboarding.welcome.subtitle')}</p>

@@ -102,7 +102,7 @@ export default function Scheduler() {
 
   const handleRestartAll = async () => {
     const ok = await confirm({
-      title: 'Reiniciar EvoNexus',
+      title: 'Reiniciar X-Brain',
       description: 'Dashboard, scheduler e terminal-server serão reiniciados.',
       confirmText: 'Reiniciar',
       variant: 'danger',

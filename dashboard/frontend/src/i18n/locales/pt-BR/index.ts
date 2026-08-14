@@ -207,7 +207,7 @@ const translations = {
 
     login: {
       title: 'Entrar',
-      subtitle: 'Acesse o painel do EvoNexus',
+      subtitle: 'Acesse o painel do X-Brain',
       username: 'Usuário',
       password: 'Senha',
       submit: 'Entrar',
@@ -217,7 +217,7 @@ const translations = {
     },
 
     setup: {
-      title: 'Bem-vindo ao EvoNexus',
+      title: 'Bem-vindo ao X-Brain',
       subtitle: 'Vamos configurar seu workspace',
       appSubtitle: 'Plataforma de Workspace com IA',
       stepOf: 'Etapa {{current}} de {{total}}',
@@ -760,7 +760,7 @@ const translations = {
 
     plugins: {
       title: 'Plugins',
-      subtitle: 'Expanda o EvoNexus com plugins da comunidade e oficiais',
+      subtitle: 'Expanda o X-Brain com plugins da comunidade e oficiais',
       installed: 'Instalados',
       marketplace: 'Marketplace',
       install: 'Instalar plugin',
@@ -909,12 +909,12 @@ const translations = {
         step3of3: 'Etapa 3 de 3',
       },
       welcome: {
-        title: 'Bem-vindo ao EvoNexus',
+        title: 'Bem-vindo ao X-Brain',
         subtitle: 'Vamos configurar seu workspace',
         chooseHowToStart: 'Escolha como deseja começar:',
         configureFromScratch: 'Configurar do zero',
         restoreBrainRepo: 'Restaurar brain repo',
-        restoreHint: 'Se você já configurou o EvoNexus com um brain repo antes, use "Restaurar" para recuperar sua configuração.',
+        restoreHint: 'Se você já configurou o X-Brain com um brain repo antes, use "Restaurar" para recuperar sua configuração.',
       },
       provider: {
         title: 'Escolha seu provedor de IA',

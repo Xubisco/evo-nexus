@@ -76,7 +76,7 @@ type AssistantBlock =
   | { type: 'thinking'; text: string }
   | { type: 'tool_use'; toolName: string; toolId: string; input: string; result?: string; done?: boolean; subagentType?: string; subagentStatus?: string; subagentSummary?: string; subagentTools?: Array<{ toolName: string; input: string; toolUseId: string; ts: number }> }
 
-type Status = 'idle' | 'connecting' | 'running' | 'error'
+type Status = 'idle' | 'connecting' | 'running' | 'error' | 'reconnecting'
 
 export default function AgentChat({ agent, sessionId, accentColor = '#00FFA7', externalLoading = false, externalError = null, onPendingCountChange, onNeedsAttention, workingDir: _workingDir, threadTicketId: _threadTicketId, onTurnCompleted }: AgentChatProps) {
   const { dismissBySession } = useNotifications()
@@ -99,6 +99,8 @@ export default function AgentChat({ agent, sessionId, accentColor = '#00FFA7', e
   const [editingUuid, setEditingUuid] = useState<string | null>(null)
   const [editingText, setEditingText] = useState('')
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
+  const [reconnectKey, setReconnectKey] = useState(0)
+  const reconnectAttemptRef = useRef(0)
   const wsRef = useRef<WebSocket | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -158,6 +160,7 @@ export default function AgentChat({ agent, sessionId, accentColor = '#00FFA7', e
       wsRef.current = ws
 
       ws.onopen = () => {
+        reconnectAttemptRef.current = 0
         ws!.send(JSON.stringify({ type: 'join_session', sessionId }))
         setStatus('idle')
       }
@@ -273,13 +276,23 @@ export default function AgentChat({ agent, sessionId, accentColor = '#00FFA7', e
       }
 
       ws.onerror = () => {
-        if (cancelled) return
-        setStatus('error')
-        setErrorMsg('WebSocket error')
+        // ws.onclose always fires after onerror — reconnect logic handled there
       }
 
-      ws.onclose = () => {
+      ws.onclose = (ev) => {
         if (pingRef.current) { clearInterval(pingRef.current); pingRef.current = null }
+        if (cancelled) return
+        // code 1000 = normal close (component unmounted or session switched)
+        if (ev.code === 1000) return
+        reconnectAttemptRef.current += 1
+        if (reconnectAttemptRef.current <= 5) {
+          setStatus('reconnecting')
+          const delay = Math.min(2000 * reconnectAttemptRef.current, 12000)
+          setTimeout(() => { if (!cancelled) setReconnectKey(k => k + 1) }, delay)
+        } else {
+          setStatus('error')
+          setErrorMsg('Sem conexão com o servidor. Recarregue a página.')
+        }
       }
 
       pingRef.current = setInterval(() => {
@@ -295,7 +308,7 @@ export default function AgentChat({ agent, sessionId, accentColor = '#00FFA7', e
       try { ws?.close() } catch {}
       wsRef.current = null
     }
-  }, [sessionId])
+  }, [sessionId, reconnectKey])
 
   // Revoke object URLs on unmount
   useEffect(() => {
@@ -897,10 +910,21 @@ export default function AgentChat({ agent, sessionId, accentColor = '#00FFA7', e
     setIsThinking(false)
   }, [])
 
-  const isConnecting = externalLoading || status === 'connecting'
+  const isConnecting = externalLoading || status === 'connecting' || status === 'reconnecting'
   const effectiveError = externalError || (status === 'error' ? errorMsg : null)
   const inputDisabled = isConnecting || !!effectiveError
   const canSend = (input.trim().length > 0 || attachedFiles.length > 0) && !inputDisabled && status !== 'running'
+
+  const handleReconnect = useCallback(() => {
+    reconnectAttemptRef.current = 0
+    setReconnectKey(k => k + 1)
+  }, [])
+
+  const statusLabel = effectiveError
+    ? effectiveError
+    : status === 'reconnecting'
+      ? `Reconectando${reconnectAttemptRef.current > 1 ? ` (${reconnectAttemptRef.current}/5)` : '...'}`
+      : 'Conectando...'
 
   return (
     <div
@@ -913,19 +937,28 @@ export default function AgentChat({ agent, sessionId, accentColor = '#00FFA7', e
       {/* Corner status indicator */}
       {(isConnecting || effectiveError) && (
         <div
-          className="absolute top-3 right-3 z-40 flex items-center gap-1.5 px-2 py-1 rounded-full border text-[10px] max-w-[280px]"
+          className="absolute top-3 right-3 z-40 flex items-center gap-1.5 px-2 py-1 rounded-full border text-[10px] max-w-[320px]"
           style={{
             background: effectiveError ? '#ef444415' : '#F59E0B15',
             borderColor: effectiveError ? '#ef444440' : '#F59E0B40',
             color: effectiveError ? '#ef4444' : '#F59E0B',
           }}
-          title={effectiveError || 'Connecting...'}
+          title={statusLabel}
         >
           <span
-            className={`w-1.5 h-1.5 rounded-full ${effectiveError ? '' : 'animate-pulse'}`}
+            className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${effectiveError ? '' : 'animate-pulse'}`}
             style={{ background: effectiveError ? '#ef4444' : '#F59E0B' }}
           />
-          <span className="truncate">{effectiveError || 'Connecting...'}</span>
+          <span className="truncate">{statusLabel}</span>
+          {effectiveError && (
+            <button
+              onClick={handleReconnect}
+              className="flex-shrink-0 ml-1 px-1.5 py-0.5 rounded text-[9px] font-medium border transition-colors hover:opacity-80"
+              style={{ borderColor: '#ef444460', background: '#ef444420', color: '#ef4444' }}
+            >
+              Reconectar
+            </button>
+          )}
         </div>
       )}
 
