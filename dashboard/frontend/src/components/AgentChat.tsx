@@ -936,25 +936,27 @@ export default function AgentChat({ agent, sessionId, accentColor = '#00FFA7', e
     >
       {/* Corner status indicator */}
       {(isConnecting || effectiveError) && (
-        <div
-          className="absolute top-3 right-3 z-40 flex items-center gap-1.5 px-2 py-1 rounded-full border text-[10px] max-w-[320px]"
-          style={{
-            background: effectiveError ? '#ef444415' : '#F59E0B15',
-            borderColor: effectiveError ? '#ef444440' : '#F59E0B40',
-            color: effectiveError ? '#ef4444' : '#F59E0B',
-          }}
-          title={statusLabel}
-        >
-          <span
-            className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${effectiveError ? '' : 'animate-pulse'}`}
-            style={{ background: effectiveError ? '#ef4444' : '#F59E0B' }}
-          />
-          <span className="truncate">{statusLabel}</span>
+        <div className="absolute top-3 right-3 z-40 flex items-center gap-2">
+          <div
+            className="flex items-center gap-1.5 px-2 py-1 rounded-full border text-[10px]"
+            style={{
+              background: effectiveError ? '#ef444415' : '#F59E0B15',
+              borderColor: effectiveError ? '#ef444440' : '#F59E0B40',
+              color: effectiveError ? '#ef4444' : '#F59E0B',
+            }}
+            title={statusLabel}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${effectiveError ? '' : 'animate-pulse'}`}
+              style={{ background: effectiveError ? '#ef4444' : '#F59E0B' }}
+            />
+            <span>{statusLabel}</span>
+          </div>
           {effectiveError && (
             <button
               onClick={handleReconnect}
-              className="flex-shrink-0 ml-1 px-1.5 py-0.5 rounded text-[9px] font-medium border transition-colors hover:opacity-80"
-              style={{ borderColor: '#ef444460', background: '#ef444420', color: '#ef4444' }}
+              className="px-3 py-1 rounded-full text-[11px] font-semibold border transition-all hover:opacity-90 active:scale-95"
+              style={{ borderColor: '#ef4444', background: '#ef444425', color: '#ef4444' }}
             >
               Reconectar
             </button>
