@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
-import NotificationBell from './NotificationBell'
 import {
   LayoutDashboard, Bot, Clock, Zap, Layout, Calendar, CalendarClock,
   Brain, Plug, DollarSign, FolderOpen, Cpu,
