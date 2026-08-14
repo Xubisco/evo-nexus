@@ -69,11 +69,10 @@ export default function ShareView() {
           return
         }
 
-        // PDF: binary response
+        // PDF: use the direct API URL — blob URLs are ephemeral and break when
+        // opened from Telegram's in-app browser or any fresh browser context.
         if (contentType.includes('application/pdf')) {
-          const blob = await res.blob()
-          const url = URL.createObjectURL(blob)
-          setState({ status: 'pdf', url })
+          setState({ status: 'pdf', url: `${API_BASE}/api/shares/${token}/view` })
           return
         }
 
