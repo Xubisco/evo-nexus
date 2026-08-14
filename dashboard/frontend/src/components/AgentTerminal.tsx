@@ -71,7 +71,7 @@ const CC_WEB_WS = override
     ? `ws://${hostname}:32352`
     : `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/terminal`
 
-type Status = 'connecting' | 'ready' | 'starting' | 'running' | 'error' | 'exited'
+type Status = 'connecting' | 'ready' | 'starting' | 'running' | 'error' | 'exited' | 'reconnecting'
 
 export default function AgentTerminal({ agent, sessionId: externalSessionId, workingDir, accentColor = '#00FFA7' }: AgentTerminalProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -82,6 +82,8 @@ export default function AgentTerminal({ agent, sessionId: externalSessionId, wor
   const pingRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [status, setStatus] = useState<Status>('connecting')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [reconnectKey, setReconnectKey] = useState(0)
+  const reconnectAttemptRef = useRef(0)
 
   // Mount xterm once
   useEffect(() => {
@@ -228,6 +230,7 @@ export default function AgentTerminal({ agent, sessionId: externalSessionId, wor
       wsRef.current = ws
 
       ws.onopen = () => {
+        reconnectAttemptRef.current = 0
         ws.send(JSON.stringify({ type: 'join_session', sessionId }))
       }
 
@@ -304,15 +307,25 @@ export default function AgentTerminal({ agent, sessionId: externalSessionId, wor
       }
 
       ws.onerror = () => {
-        if (cancelled) return
-        setStatus('error')
-        setErrorMsg('WebSocket error')
+        // ws.onclose always fires after onerror — reconnect handled there
       }
 
-      ws.onclose = () => {
+      ws.onclose = (ev) => {
         if (pingRef.current) {
           clearInterval(pingRef.current)
           pingRef.current = null
+        }
+        if (cancelled) return
+        if (ev.code === 1000) return
+        reconnectAttemptRef.current += 1
+        if (reconnectAttemptRef.current <= 5) {
+          setStatus('reconnecting')
+          setErrorMsg(null)
+          const delay = Math.min(2000 * reconnectAttemptRef.current, 12000)
+          setTimeout(() => { if (!cancelled) setReconnectKey(k => k + 1) }, delay)
+        } else {
+          setStatus('error')
+          setErrorMsg('WebSocket error')
         }
       }
 
@@ -337,23 +350,29 @@ export default function AgentTerminal({ agent, sessionId: externalSessionId, wor
         wsRef.current = null
       }
     }
-  }, [agent, externalSessionId, workingDir])
+  }, [agent, externalSessionId, workingDir, reconnectKey])
 
   const statusDotColor =
     status === 'running'
       ? accentColor
-      : status === 'starting' || status === 'connecting'
+      : status === 'starting' || status === 'connecting' || status === 'reconnecting'
       ? '#F59E0B'
       : status === 'error'
       ? '#ef4444'
       : '#4b5563'
 
   const statusLabel =
-    status === 'connecting' ? 'connecting…' :
-    status === 'starting'   ? 'starting…' :
-    status === 'running'    ? 'live' :
-    status === 'error'      ? 'error' :
-    status === 'exited'     ? 'exited' : ''
+    status === 'connecting'   ? 'connecting…' :
+    status === 'starting'     ? 'starting…' :
+    status === 'running'      ? 'live' :
+    status === 'reconnecting' ? `reconectando${reconnectAttemptRef.current > 1 ? ` (${reconnectAttemptRef.current}/5)` : '…'}` :
+    status === 'error'        ? 'error' :
+    status === 'exited'       ? 'exited' : ''
+
+  const handleReconnect = () => {
+    reconnectAttemptRef.current = 0
+    setReconnectKey(k => k + 1)
+  }
 
   return (
     <div className="relative flex h-full w-full flex-col overflow-hidden">
@@ -375,11 +394,20 @@ export default function AgentTerminal({ agent, sessionId: externalSessionId, wor
         </span>
         {errorMsg && (
           <span
-            className="ml-auto text-[10px] text-[#ef4444] truncate max-w-[50%]"
+            className="ml-auto text-[10px] text-[#ef4444] truncate max-w-[40%]"
             title={errorMsg}
           >
             {errorMsg}
           </span>
+        )}
+        {status === 'error' && (
+          <button
+            onClick={handleReconnect}
+            className="ml-2 px-3 py-0.5 rounded-full text-[11px] font-semibold border transition-all hover:opacity-90 active:scale-95"
+            style={{ borderColor: '#ef4444', background: '#ef444425', color: '#ef4444' }}
+          >
+            Reconectar
+          </button>
         )}
       </div>
 
