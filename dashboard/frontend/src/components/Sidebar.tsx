@@ -243,13 +243,10 @@ export default function Sidebar() {
   const sidebarContent = (
     <>
       <div className="px-5 py-6 flex items-center justify-between">
-        <img src="/X-Brain-SF.png" alt="X-Brain" className="h-auto w-44" />
-        <div className="flex items-center gap-1">
-          <NotificationBell />
-          <button onClick={() => setMobileOpen(false)} className="lg:hidden p-1 rounded hover:bg-white/10 text-[#667085]">
-            <X size={20} />
-          </button>
-        </div>
+        <img src="/X-Brain-SF.png" alt="X-Brain" className="h-auto w-52" />
+        <button onClick={() => setMobileOpen(false)} className="lg:hidden p-1 rounded hover:bg-white/10 text-[#667085]">
+          <X size={20} />
+        </button>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 pb-4">
