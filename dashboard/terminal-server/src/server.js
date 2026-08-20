@@ -11,6 +11,10 @@ const SessionStore = require('./utils/session-store');
 const ChatLogger = require('./utils/chat-logger');
 const { loadProviderConfig, getProviderMode } = require('./provider-config');
 
+// Cap in-memory chat history per session. Full history persists in JSONL on disk;
+// only the tail is kept in RAM to bound per-session memory use.
+const CHAT_HISTORY_MAX_IN_MEMORY = Number(process.env.CHAT_HISTORY_MAX_IN_MEMORY) || 200;
+
 class TerminalServer {
   constructor(options = {}) {
     this.port = options.port || 32352;
@@ -724,6 +728,9 @@ class TerminalServer {
               ts: Date.now(),
             };
             chatSession.chatHistory.push(userMsg);
+            if (chatSession.chatHistory.length > CHAT_HISTORY_MAX_IN_MEMORY) {
+              chatSession.chatHistory = chatSession.chatHistory.slice(-CHAT_HISTORY_MAX_IN_MEMORY);
+            }
             this.chatLogger.append(chatSession.agentName, wsInfo.claudeSessionId, userMsg);
 
             // Accumulate assistant response for history
@@ -849,6 +856,9 @@ class TerminalServer {
                       streaming: false,
                     };
                     chatSession.chatHistory.push(assistantMsg);
+                    if (chatSession.chatHistory.length > CHAT_HISTORY_MAX_IN_MEMORY) {
+                      chatSession.chatHistory = chatSession.chatHistory.slice(-CHAT_HISTORY_MAX_IN_MEMORY);
+                    }
                     this.chatLogger.append(chatSession.agentName, wsInfo.claudeSessionId, assistantMsg);
                   }
                   this.saveSessionsToDisk();
@@ -940,9 +950,10 @@ class TerminalServer {
     if (chatHistory.length === 0 && session.agentName && session.mode === 'chat') {
       const restored = this.chatLogger.read(session.agentName, claudeSessionId);
       if (restored.length > 0) {
-        session.chatHistory = restored;
-        chatHistory = restored;
-        if (this.dev) console.log(`[chat-logger] Restored ${restored.length} messages for session ${claudeSessionId}`);
+        const capped = restored.length > CHAT_HISTORY_MAX_IN_MEMORY ? restored.slice(-CHAT_HISTORY_MAX_IN_MEMORY) : restored;
+        session.chatHistory = capped;
+        chatHistory = capped;
+        if (this.dev) console.log(`[chat-logger] Restored ${capped.length}/${restored.length} messages for session ${claudeSessionId}`);
       }
     }
 
