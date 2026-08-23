@@ -107,6 +107,10 @@ def setup_schedule():
     schedule.every().day.at("07:00").do(run_adw, "Good Morning", "good_morning.py")
     schedule.every().day.at("21:00").do(run_adw, "End of Day", "end_of_day.py")
     schedule.every().day.at("21:15").do(run_adw, "Memory Sync", "memory_sync.py")
+    # GC 3x/dia: mata sessões completadas ociosas e compacta heap do Node.js
+    schedule.every().day.at("08:30").do(run_adw, "Memory GC", "memory_gc.py")
+    schedule.every().day.at("14:00").do(run_adw, "Memory GC", "memory_gc.py")
+    schedule.every().day.at("22:00").do(run_adw, "Memory GC", "memory_gc.py")
     # Disabled — replaced by Weekly Review (Team) in routines.yaml
     # schedule.every().friday.at("08:00").do(run_adw, "Weekly Review", "weekly_review.py")
     schedule.every().sunday.at("09:00").do(run_adw, "Memory Lint", "memory_lint.py")

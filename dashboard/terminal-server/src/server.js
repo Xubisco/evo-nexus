@@ -518,6 +518,49 @@ class TerminalServer {
       });
     });
 
+    // Force garbage collection: stop completed/idle sessions and compact V8 heap.
+    // Called by the memory_gc routine 3x/day to prevent the gradual 2-3GB climb.
+    this.app.post('/api/gc/force', async (req, res) => {
+      const before = process.memoryUsage();
+      const now = Date.now();
+      // Default: purge completed sessions inactive for >30 min, regardless of TTL
+      const cutoffMs = (Number(req.body?.cutoffMinutes) || 30) * 60 * 1000;
+
+      let stopped = 0;
+      for (const [sessionId, session] of this.claudeSessions.entries()) {
+        if (session.active) continue;
+        const lastActivity = session.lastActivity
+          ? new Date(session.lastActivity).getTime()
+          : (session.lastAccessed || 0);
+        if (now - lastActivity > cutoffMs) {
+          await Promise.allSettled([
+            this.claudeBridge.stopSession(sessionId),
+            this.chatBridge.stopSession(sessionId),
+          ]);
+          this.claudeSessions.delete(sessionId);
+          stopped++;
+        }
+      }
+
+      const { removed, idleReaped } = await this.purgeStaleSessions();
+
+      // Compact V8 heap if --expose-gc was passed at startup
+      if (typeof global.gc === 'function') global.gc();
+
+      const after = process.memoryUsage();
+      const toMB = (b) => Math.round(b / 1024 / 1024);
+      console.log(
+        `[gc/force] stopped=${stopped} removed=${removed} idleReaped=${idleReaped}` +
+        ` heap ${toMB(before.heapUsed)}MB→${toMB(after.heapUsed)}MB` +
+        ` rss ${toMB(before.rss)}MB→${toMB(after.rss)}MB`
+      );
+      res.json({
+        stopped, removed, idleReaped,
+        before: { heapUsedMB: toMB(before.heapUsed), rssMB: toMB(before.rss) },
+        after:  { heapUsedMB: toMB(after.heapUsed),  rssMB: toMB(after.rss)  },
+      });
+    });
+
     this.app.delete('/api/sessions/:sessionId', (req, res) => {
       const sessionId = req.params.sessionId;
       const session = this.claudeSessions.get(sessionId);
