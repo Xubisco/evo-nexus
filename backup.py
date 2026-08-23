@@ -19,7 +19,10 @@ from datetime import datetime
 from pathlib import Path
 
 WORKSPACE = Path(__file__).parent
-BACKUPS_DIR = WORKSPACE / "backups"
+# Allow overriding via env var so Railway volume path (/data/backups) can be used.
+# Falls back to WORKSPACE/backups for local dev.
+_backup_dir_env = os.environ.get("BACKUP_DIR", "")
+BACKUPS_DIR = Path(_backup_dir_env) if _backup_dir_env else WORKSPACE / "backups"
 
 # Directories to exclude wherever they appear in the path (reconstructible / heavy)
 EXCLUDE_DIRS = {
@@ -187,22 +190,25 @@ def collect_files() -> list[str]:
                 files.add(rel)
 
     # Strategy 2 — git-reported ignored files (covers everything else).
+    # Optional: Railway containers built by Nixpacks strip .git, so git may
+    # not be available or the directory may not be a git repo. Failures here
+    # are logged as warnings and skipped — Strategy 1 already covers the
+    # important user-data directories (memory/, workspace/, plugins/).
+    git_result = None
     try:
-        result = subprocess.run(
+        git_result = subprocess.run(
             ["git", "ls-files", "--others", "--ignored", "--exclude-standard"],
             capture_output=True, text=True, cwd=WORKSPACE, timeout=30
         )
-        if result.returncode != 0:
-            print(f"{RED}Error running git ls-files: {result.stderr.strip()}{RESET}")
-            sys.exit(1)
+        if git_result.returncode != 0:
+            print(f"{YELLOW}Warning: git ls-files failed (not a git repo?). Skipping git strategy.{RESET}")
+            git_result = None
     except FileNotFoundError:
-        print(f"{RED}git not found. Backup requires git.{RESET}")
-        sys.exit(1)
+        print(f"{YELLOW}Warning: git not found. Using filesystem walk only.{RESET}")
     except subprocess.TimeoutExpired:
-        print(f"{RED}git ls-files timed out. Repo may have too many ignored files.{RESET}")
-        sys.exit(1)
+        print(f"{YELLOW}Warning: git ls-files timed out. Skipping git strategy.{RESET}")
 
-    for line in result.stdout.strip().splitlines():
+    for line in (git_result.stdout.strip().splitlines() if git_result else []):
         line = line.strip()
         if not line:
             continue
