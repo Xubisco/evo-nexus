@@ -6,6 +6,7 @@ import { hydratePluginUiRegistry } from './lib/plugin-ui-registry'
 import { initEvoNexusSdk } from './lib/evonexus-sdk'
 import PluginPageHost from './pages/PluginPageHost'
 import { NotificationProvider } from './context/NotificationContext'
+import { LayoutProvider, useLayout } from './context/LayoutContext'
 import Sidebar from './components/Sidebar'
 import { FullPageLoader, SectionBoundary, SectionLoader } from './components/PageStates'
 import { lazyDefault, lazyNamed } from './lib/lazyImport'
@@ -126,6 +127,8 @@ function AppContent() {
   const isTicketDetail = /^\/tickets\/[^/]+$/.test(location.pathname)
   const isWorkspace = location.pathname === '/workspace' || location.pathname.startsWith('/workspace/')
   const { user, loading, needsSetup, hasPermission } = useAuth()
+  const { sidebarHidden } = useLayout()
+  const mainMargin = sidebarHidden ? 'lg:ml-10' : 'lg:ml-60'
   const extUser = user as (typeof user & OnboardingUser) | null
 
   // Wave 2.0/2.1: hydrate registries once per authenticated session.
@@ -219,8 +222,8 @@ function AppContent() {
         <main
           className={
             isAgentDetail || isWorkspace || isTicketDetail
-              ? 'flex-1 ml-0 lg:ml-60 pt-14 lg:pt-0 h-screen overflow-hidden'
-              : 'flex-1 ml-0 lg:ml-60 p-4 lg:p-8 pt-16 lg:pt-8 overflow-auto'
+              ? `flex-1 min-w-0 ml-0 ${mainMargin} pt-14 lg:pt-0 h-screen overflow-hidden`
+              : `flex-1 min-w-0 ml-0 ${mainMargin} p-4 lg:p-8 pt-16 lg:pt-8 overflow-auto`
           }
         >
           <DashboardRouteFrame locationKey={routeKey}>
@@ -304,7 +307,9 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <LayoutProvider>
+        <AppContent />
+      </LayoutProvider>
     </AuthProvider>
   )
 }

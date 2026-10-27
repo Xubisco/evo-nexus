@@ -7,8 +7,9 @@ import {
   Brain, Plug, DollarSign, FolderOpen, Cpu,
   Monitor, Users, ScrollText, LogOut, Menu, X, Shield, BookOpen, Library, Database,
   ArrowUpCircle, ChevronDown, Webhook, HardDriveDownload, Settings, Share2, Heart, Target, Ticket, Activity, Package,
-  Puzzle, Terminal,
+  Puzzle, Terminal, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react'
+import { useLayout } from '../context/LayoutContext'
 import {
   getAllPluginSidebarGroups,
   getAllPluginPages,
@@ -127,6 +128,7 @@ export default function Sidebar() {
   const { user, logout, hasPermission } = useAuth()
   const { t } = useTranslation()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { sidebarHidden, toggleSidebar } = useLayout()
   const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null)
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>(loadCollapsedState)
   // Wave 2.1: plugin sidebar groups — refreshed after registry hydration
@@ -241,10 +243,18 @@ export default function Sidebar() {
 
   const sidebarContent = (
     <>
-      <div className="px-5 py-6 flex items-center justify-between">
-        <img src="/X-Brain-SF.png" alt="X-Brain" className="h-auto w-52" />
+      <div className="px-5 py-6 flex items-center justify-between gap-2">
+        <img src="/X-Brain-SF.png" alt="X-Brain" className="h-auto w-44 min-w-0" />
         <button onClick={() => setMobileOpen(false)} className="lg:hidden p-1 rounded hover:bg-white/10 text-[#667085]">
           <X size={20} />
+        </button>
+        <button
+          onClick={toggleSidebar}
+          className="hidden lg:flex p-1 rounded text-[#667085] hover:text-[#00FFA7] hover:bg-white/10 transition-colors shrink-0"
+          title="Recolher menu"
+          aria-label="Recolher menu"
+        >
+          <PanelLeftClose size={18} />
         </button>
       </div>
 
@@ -406,12 +416,26 @@ export default function Sidebar() {
         <div className="fixed inset-0 bg-black/60 z-40 lg:hidden" onClick={() => setMobileOpen(false)} />
       )}
 
+      {/* Collapsed strip — desktop only */}
+      {sidebarHidden && (
+        <div className="hidden lg:flex fixed left-0 top-0 bottom-0 w-10 flex-col items-center pt-5 bg-[#0a0f1a] border-r border-[#344054] z-50">
+          <button
+            onClick={toggleSidebar}
+            className="p-1.5 rounded text-[#667085] hover:text-[#00FFA7] hover:bg-white/10 transition-colors"
+            title="Expandir menu"
+            aria-label="Expandir menu"
+          >
+            <PanelLeftOpen size={18} />
+          </button>
+        </div>
+      )}
+
       {/* Sidebar */}
       <aside className={`
         fixed left-0 top-0 bottom-0 w-60 bg-[#0a0f1a] border-r border-[#344054] flex flex-col z-50
         transition-transform duration-200 ease-in-out
-        lg:translate-x-0
-        ${mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${sidebarHidden ? 'lg:-translate-x-full' : 'lg:translate-x-0'}
       `}>
         {sidebarContent}
       </aside>

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, ChevronDown, ChevronRight, PanelLeft, X, Lock, Plus, Terminal as TerminalIcon, MessageSquare } from 'lucide-react'
+import { ArrowLeft, ChevronDown, ChevronRight, PanelLeft, PanelLeftClose, PanelLeftOpen, X, Lock, Plus, Terminal as TerminalIcon, MessageSquare } from 'lucide-react'
 import { api } from '../lib/api'
 import Markdown from '../components/Markdown'
 import AgentTerminal from '../components/AgentTerminal'
@@ -59,6 +59,16 @@ export default function AgentDetail() {
   const [expandedMemory, setExpandedMemory] = useState<string | null>(null)
   const [tab, setTab] = useState<Tab>('sessions')
   const [railOpen, setRailOpen] = useState(false) // mobile drawer
+  const [railHidden, setRailHidden] = useState<boolean>(() => {
+    try { return localStorage.getItem('evo:agent-rail-hidden') === '1' } catch { return false }
+  })
+  const toggleRailHidden = useCallback(() => {
+    setRailHidden((prev) => {
+      const next = !prev
+      try { localStorage.setItem('evo:agent-rail-hidden', next ? '1' : '0') } catch {}
+      return next
+    })
+  }, [])
 
   // View mode: terminal or chat
   type ViewMode = 'terminal' | 'chat'
@@ -442,8 +452,9 @@ export default function AgentDetail() {
       {/* ── BODY ───────────────────────────────────────────────────── */}
       <div className="flex flex-1 min-h-0 relative">
         {/* Info rail — desktop */}
-        <aside className="hidden lg:flex flex-col w-[320px] flex-shrink-0 border-r border-[#21262d] bg-[#0d1117]">
+        <aside className={`hidden ${railHidden ? '' : 'lg:flex'} flex-col w-[320px] flex-shrink-0 border-r border-[#21262d] bg-[#0d1117]`}>
           <InfoRail
+            onCollapse={toggleRailHidden}
             tab={tab}
             setTab={setTab}
             agentColor={agentColor}
@@ -524,6 +535,16 @@ export default function AgentDetail() {
 
           {/* View mode bar + terminal tabs */}
           <div className="relative z-10 flex items-center flex-shrink-0 h-9 border-b border-[#21262d] bg-[#0d1117]">
+            {railHidden && (
+              <button
+                onClick={toggleRailHidden}
+                className="hidden lg:flex items-center justify-center h-full px-2.5 border-r border-[#21262d] text-[#667085] hover:text-[#e6edf3] hover:bg-[#161b22] transition-colors"
+                title="Mostrar painel de sessões"
+                aria-label="Mostrar painel de sessões"
+              >
+                <PanelLeftOpen size={14} />
+              </button>
+            )}
             {/* View mode toggle */}
             <div className="flex items-center border-r border-[#21262d] h-full">
               <button
@@ -638,6 +659,7 @@ interface InfoRailProps {
   onRename: (id: string, newName: string) => void
   onArchive: (id: string, archived: boolean) => void
   onDelete: (id: string) => void
+  onCollapse?: () => void
 }
 
 function InfoRail({
@@ -659,6 +681,7 @@ function InfoRail({
   onRename,
   onArchive,
   onDelete,
+  onCollapse,
 }: InfoRailProps) {
   return (
     <>
@@ -679,6 +702,16 @@ function InfoRail({
           color={agentColor}
           count={memories.length}
         />
+        {onCollapse && (
+          <button
+            onClick={onCollapse}
+            className="ml-auto -mr-2 p-1 rounded text-[#667085] hover:text-[#e6edf3] hover:bg-[#161b22] transition-colors"
+            title="Recolher painel"
+            aria-label="Recolher painel"
+          >
+            <PanelLeftClose size={14} />
+          </button>
+        )}
       </div>
 
       {/* Content */}

@@ -152,6 +152,13 @@ export default function AgentTerminal({ agent, sessionId: externalSessionId, wor
       } catch {}
     }
     window.addEventListener('resize', onResize)
+    // Panels (sidebar, info rail) can collapse without the window resizing.
+    let resizeFrame = 0
+    const resizeObserver = new ResizeObserver(() => {
+      cancelAnimationFrame(resizeFrame)
+      resizeFrame = requestAnimationFrame(onResize)
+    })
+    resizeObserver.observe(containerRef.current)
 
     // Second line of defense: even though the parser-level handlers
     // above should prevent every known query reply, drop any onData
@@ -174,6 +181,8 @@ export default function AgentTerminal({ agent, sessionId: externalSessionId, wor
 
     return () => {
       window.removeEventListener('resize', onResize)
+      resizeObserver.disconnect()
+      cancelAnimationFrame(resizeFrame)
       term.dispose()
       termRef.current = null
       fitRef.current = null
