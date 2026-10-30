@@ -823,6 +823,7 @@ def auth_middleware():
 
 # --------------- Register blueprints ---------------
 from routes.overview import bp as overview_bp
+from routes.dashboards import bp as dashboards_bp
 from routes.workspace import bp as workspace_bp
 from routes.agents import bp as agents_bp
 from routes.routines import bp as routines_bp
@@ -877,6 +878,7 @@ except Exception as _bw_exc:
     pass  # Brain watcher starts only when a brain repo is configured
 
 app.register_blueprint(overview_bp)
+app.register_blueprint(dashboards_bp)
 app.register_blueprint(workspace_bp)
 app.register_blueprint(agents_bp)
 app.register_blueprint(routines_bp)

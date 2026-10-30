@@ -176,6 +176,7 @@ const translations = {
         admin: 'Admin',
       },
       overview: 'Overview',
+      system: 'System',
       agents: 'Agents',
       skills: 'Skills',
       memory: 'Memory',
@@ -260,7 +261,7 @@ const translations = {
     },
 
     overview: {
-      title: 'Overview',
+      title: 'System',
       subtitle: 'Workspace at a glance',
       activeAgents: 'Active agents',
       pendingTasks: 'Pending tasks',

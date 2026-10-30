@@ -16,6 +16,8 @@ const Login = lazyDefault(() => import('./pages/Login'))
 const ShareView = lazyDefault(() => import('./pages/ShareView'))
 const Docs = lazyDefault(() => import('./pages/Docs'))
 const Overview = lazyDefault(() => import('./pages/Overview'))
+const VisaoGeral = lazyDefault(() => import('./pages/VisaoGeral'))
+const DashboardDetalhe = lazyDefault(() => import('./pages/DashboardDetalhe'))
 const Agents = lazyDefault(() => import('./pages/Agents'))
 const AgentDetail = lazyDefault(() => import('./pages/AgentDetail'))
 const Routines = lazyDefault(() => import('./pages/Routines'))
@@ -241,7 +243,9 @@ function AppContent() {
                 </Suspense>
               } />
 
-              <Route path="/" element={<Overview />} />
+              <Route path="/" element={<VisaoGeral />} />
+              <Route path="/dashboards/:id" element={<DashboardDetalhe />} />
+              <Route path="/sistema" element={<Overview />} />
               <Route path="/workspace/*" element={<Workspace />} />
               <Route path="/agents" element={<Agents />} />
               <Route path="/agents/:name" element={<AgentDetail />} />

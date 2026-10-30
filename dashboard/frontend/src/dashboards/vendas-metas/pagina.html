@@ -1,0 +1,90 @@
+<div class="vm" id="vm">
+  <header>
+    <h1>Vendas e Metas</h1>
+    <p class="vm-muted" data-draw="sub" data-source="vendas_dia">—</p>
+  </header>
+
+  <section class="vm-bar" aria-label="Filtros">
+    <label for="f-mes">Mês <select id="f-mes" data-draw="f-mes" data-source="vendas_dia"></select></label>
+    <label for="f-loja">Loja <select id="f-loja" data-draw="f-loja" data-source="vendas_dia"></select></label>
+    <button type="button" class="vm-btn" id="f-reset">Mês atual, todas as lojas</button>
+  </section>
+
+  <section class="vm-kpis" aria-label="Resumo do mês">
+    <div class="vm-kpi"><b data-draw="k-fat" data-source="vendas_dia">—</b><em data-draw="k-fat-d" data-source="vendas_dia"></em><span>Faturamento com montagem e frete</span></div>
+    <div class="vm-kpi"><b data-draw="k-ped" data-source="vendas_dia">—</b><em data-draw="k-ped-d" data-source="vendas_dia"></em><span>Pedidos</span></div>
+    <div class="vm-kpi"><b data-draw="k-tic" data-source="vendas_dia">—</b><em data-draw="k-tic-d" data-source="vendas_dia"></em><span>Ticket médio</span></div>
+    <div class="vm-kpi"><b data-draw="k-mg" data-source="vendas_dia">—</b><em data-draw="k-mg-d" data-source="vendas_dia"></em><span>Margem bruta de produtos</span></div>
+    <div class="vm-kpi"><b data-draw="k-proj" data-source="vendas_dia">—</b><em data-draw="k-proj-d" data-source="vendas_dia"></em><span data-draw="k-proj-l">Projeção do mês</span></div>
+  </section>
+
+  <nav class="vm-tabs" role="tablist" aria-label="Seções">
+    <button type="button" role="tab" data-tab="resumo" aria-selected="true">Resumo do mês</button>
+    <button type="button" role="tab" data-tab="vendedores" aria-selected="false">Vendedores e metas</button>
+    <button type="button" role="tab" data-tab="evolucao" aria-selected="false">Evolução</button>
+  </nav>
+
+  <section class="vm-pane" id="resumo">
+    <div class="vm-card">
+      <header><h2>Faturamento acumulado no mês</h2><span class="vm-muted vm-small" data-draw="r-acum-sub">—</span></header>
+      <div class="vm-legend" data-draw="r-acum-leg"></div>
+      <div class="vm-chart" id="r-acum" data-draw="r-acum" data-source="vendas_dia"></div>
+    </div>
+    <div class="vm-grid">
+      <div class="vm-card">
+        <header><h2>Faturamento por dia</h2><span class="vm-muted vm-small">Mês escolhido.</span></header>
+        <div class="vm-chart" id="r-dia" data-draw="r-dia" data-source="vendas_dia"></div>
+      </div>
+      <div class="vm-card">
+        <header><h2 data-draw="r-ult-t">—</h2><span class="vm-muted vm-small">Último dia com venda registrada.</span></header>
+        <div class="vm-tw"><table>
+          <thead><tr><th class="l">Loja</th><th>Pedidos</th><th>Faturamento</th><th>Ticket</th></tr></thead>
+          <tbody data-draw="r-ult" data-source="vendas_dia"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="vm-card">
+      <header><h2>Por loja</h2><span class="vm-muted vm-small" data-draw="r-lojas-sub">—</span></header>
+      <div class="vm-tw"><table>
+        <thead><tr><th class="l">Loja</th><th>Faturamento</th><th>% do total</th><th>Pedidos</th><th>Ticket</th><th>Margem</th><th>vs mês anterior</th><th>vs mesmo mês de 2025</th></tr></thead>
+        <tbody data-draw="r-lojas" data-source="vendas_dia"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="vm-pane" id="vendedores" hidden>
+    <div class="vm-card">
+      <header><h2>Meta por vendedor</h2><span class="vm-muted vm-small" data-draw="v-sub" data-source="metas vendedor_mes">—</span></header>
+      <div class="vm-chart" id="v-chart" data-draw="v-chart" data-source="metas vendedor_mes"></div>
+    </div>
+    <div class="vm-card">
+      <header><h2>Ranking do mês</h2><span class="vm-muted vm-small" data-draw="v-nota">—</span></header>
+      <div class="vm-tw"><table>
+        <thead><tr><th class="l">Vendedor</th><th class="l">Loja principal</th><th>Pedidos</th><th>Faturamento</th><th>Ticket</th><th>Meta</th><th>% da meta</th><th>Falta</th><th>Precisa por dia</th></tr></thead>
+        <tbody data-draw="v-corpo" data-source="metas vendedor_mes"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="vm-pane" id="evolucao" hidden>
+    <div class="vm-card">
+      <header><h2>Faturamento por mês</h2><span class="vm-muted vm-small" data-draw="e-sub">—</span></header>
+      <div class="vm-legend"><span style="--c:var(--cds-chart-muted)"><i></i>2025</span><span style="--c:var(--vm-accent)"><i></i>2026 (último mês em andamento)</span></div>
+      <div class="vm-chart" id="e-chart" data-draw="e-chart" data-source="vendas_dia"></div>
+    </div>
+    <div class="vm-card">
+      <header><h2>Mês a mês e por loja</h2><span class="vm-muted vm-small">Faturamento com montagem e frete.</span></header>
+      <div class="vm-tw"><table>
+        <thead data-draw="e-cab" data-source="vendas_dia"></thead>
+        <tbody data-draw="e-corpo" data-source="vendas_dia"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <footer class="vm-note">
+    <p><b>Como ler.</b> Faturamento inclui montagem e frete, igual ao que o Unique usa nas metas. A margem usa só o valor dos produtos e o custo que o Unique registrou em cada venda. Os comparativos com o mês anterior e com 2025 usam o mesmo período do mês, até o último dia com venda.</p>
+    <p><b>Metas.</b> O Unique tem meta só por vendedor e não tem meta por loja nem da empresa. A soma das metas dos vendedores não é a meta da empresa. Os dados de metas existem só para o mês atual.</p>
+    <p data-draw="rodape" data-source="vendas_dia metas">—</p>
+  </footer>
+  <div class="vm-tip" id="vm-tip"></div>
+</div>

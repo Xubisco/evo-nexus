@@ -1,0 +1,179 @@
+<div class="ee" id="ee">
+  <header>
+    <h1>Estoque e Vendas</h1>
+    <p class="ee-muted" data-draw="sub" data-source="produtos mensal_produto">—</p>
+  </header>
+
+  <section class="ee-bar" aria-label="Período e filtros">
+    <div class="ee-seg" id="seg-ano" role="group" aria-label="Ano">
+      <button type="button" data-f="ano" data-v="" aria-pressed="true">Todos os anos</button>
+      <button type="button" data-f="ano" data-v="2025" aria-pressed="false">2025</button>
+      <button type="button" data-f="ano" data-v="2026" aria-pressed="false">2026</button>
+    </div>
+    <div class="ee-seg" id="seg-tri" role="group" aria-label="Trimestre">
+      <button type="button" data-f="tri" data-v="" aria-pressed="true">Ano inteiro</button>
+      <button type="button" data-f="tri" data-v="1" aria-pressed="false">1T</button>
+      <button type="button" data-f="tri" data-v="2" aria-pressed="false">2T</button>
+      <button type="button" data-f="tri" data-v="3" aria-pressed="false">3T</button>
+      <button type="button" data-f="tri" data-v="4" aria-pressed="false">4T</button>
+    </div>
+    <label for="f-mes">Mês
+      <select id="f-mes">
+        <option value="">Todos</option><option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option><option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option><option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option><option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+      </select>
+    </label>
+    <label for="f-cat">Categoria <select id="f-cat" data-draw="f-cat" data-source="produtos"></select></label>
+    <label for="f-fab">Fábrica <select id="f-fab" data-draw="f-fab" data-source="produtos"></select></label>
+    <div class="ee-seg" id="seg-gr" role="group" aria-label="Cores">
+      <button type="button" data-f="gr" data-v="fam" aria-pressed="true">Cores agrupadas</button>
+      <button type="button" data-f="gr" data-v="cor" aria-pressed="false">Cada cor separada</button>
+    </div>
+    <button type="button" class="ee-btn" id="f-reset">Limpar filtros</button>
+  </section>
+
+  <section class="ee-kpis" aria-label="Resumo do período">
+    <div class="ee-kpi"><b data-draw="k-fat" data-source="mensal_produto">—</b><span>Faturamento líquido de produtos</span></div>
+    <div class="ee-kpi"><b data-draw="k-un" data-source="mensal_produto">—</b><span>Unidades vendidas</span></div>
+    <div class="ee-kpi"><b data-draw="k-mg" data-source="mensal_produto">—</b><span>Margem bruta (vendas com custo)</span></div>
+    <div class="ee-kpi"><b data-draw="k-prod" data-source="mensal_produto">—</b><span>Produtos com venda</span></div>
+    <div class="ee-kpi"><b data-draw="k-est" data-source="produtos">—</b><span>Estoque a custo hoje</span></div>
+  </section>
+
+  <nav class="ee-tabs" role="tablist" aria-label="Seções">
+    <button type="button" role="tab" data-tab="visao" aria-selected="true">Visão geral</button>
+    <button type="button" role="tab" data-tab="abc" aria-selected="false">Curva ABC</button>
+    <button type="button" role="tab" data-tab="produto" aria-selected="false">Produto</button>
+    <button type="button" role="tab" data-tab="alertas" aria-selected="false">Alertas</button>
+    <button type="button" role="tab" data-tab="historico" aria-selected="false">Histórico</button>
+  </nav>
+
+  <section class="ee-pane" id="visao">
+    <div class="ee-card">
+      <header><h2>Faturamento por mês</h2><span class="ee-muted ee-small">Líquido de produtos. Os meses fora do período escolhido ficam em cinza.</span></header>
+      <div class="ee-legend"><span style="--c:var(--ee-accent)"><i></i>Mês fechado</span><span style="--c:var(--ee-accent);opacity:.55"><i></i>Mês em andamento</span></div>
+      <div class="ee-chart" id="v-meses" data-draw="v-meses" data-source="mensal_produto produtos"></div>
+    </div>
+    <div class="ee-grid">
+      <div class="ee-card">
+        <header><h2>Por loja</h2><span class="ee-muted ee-small">Período escolhido. Não muda com categoria ou fábrica.</span></header>
+        <div class="ee-chart" id="v-lojas" data-draw="v-lojas" data-source="mensal_loja"></div>
+      </div>
+      <div class="ee-card">
+        <header><h2>Por categoria</h2><span class="ee-muted ee-small">Período escolhido.</span></header>
+        <div class="ee-chart" id="v-cats" data-draw="v-cats" data-source="mensal_produto produtos"></div>
+      </div>
+    </div>
+    <div class="ee-card">
+      <header><h2>10 produtos que mais faturam</h2><span class="ee-muted ee-small">Clique em uma linha para abrir o produto.</span></header>
+      <div class="ee-tw"><table>
+        <thead><tr><th class="nosort l">Produto</th><th class="nosort l">Fábrica</th><th class="nosort">Faturamento</th><th class="nosort">Unidades</th><th class="nosort">Margem</th><th class="nosort">Estoque</th></tr></thead>
+        <tbody data-draw="v-top" data-source="mensal_produto produtos"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="ee-pane" id="abc" hidden>
+    <div class="ee-card">
+      <header><h2>Curva ABC por faturamento</h2><span class="ee-muted ee-small" data-draw="abc-sub" data-source="mensal_produto produtos">—</span></header>
+      <div class="ee-legend"><span class="cl-A" style="--c:var(--ee-accent)"><i></i>A</span><span class="cl-B" style="--c:var(--color-warn)"><i></i>B</span><span class="cl-C" style="--c:var(--cds-chart-muted)"><i></i>C</span><span style="--c:var(--cds-chart-reference)"><i></i>Faturamento acumulado</span></div>
+      <div class="ee-chart" id="abc-chart" data-draw="abc-chart" data-source="mensal_produto produtos"></div>
+    </div>
+    <div class="ee-card">
+      <header><h2>Resumo por classe</h2><span class="ee-muted ee-small" data-draw="abc-regra">—</span></header>
+      <div class="ee-tw"><table>
+        <thead><tr><th class="nosort l">Classe</th><th class="nosort">Produtos</th><th class="nosort">% dos produtos</th><th class="nosort">Faturamento</th><th class="nosort">% do faturamento</th><th class="nosort">Estoque a custo</th></tr></thead>
+        <tbody data-draw="abc-resumo" data-source="mensal_produto produtos"></tbody>
+      </table></div>
+    </div>
+    <div class="ee-card">
+      <header><h2>Produtos</h2><label for="abc-q">Buscar <input type="search" id="abc-q" placeholder="nome, código ou fábrica"></label></header>
+      <div class="ee-tw"><table id="abc-tab">
+        <thead><tr><th class="l" data-k="nome">Produto</th><th class="l" data-k="fab">Fábrica</th><th data-k="fat">Faturamento</th><th data-k="acum">% acumulado</th><th data-k="cl">Classe</th><th data-k="un">Unidades</th><th data-k="mg">Margem</th><th data-k="estoque">Estoque</th><th data-k="cob">Cobertura (dias)</th></tr></thead>
+        <tbody data-draw="abc-corpo" data-source="mensal_produto produtos"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="ee-pane" id="produto" hidden>
+    <div class="ee-card">
+      <header><h2>Escolher produto</h2><label for="p-q">Buscar <input type="search" id="p-q" placeholder="nome, código ou fábrica"></label></header>
+      <div class="ee-picks" data-draw="p-lista" data-source="produtos"></div>
+    </div>
+    <p class="ee-muted" id="p-vazio">Escolha um produto acima, ou clique em uma linha da Curva ABC ou dos Alertas.</p>
+    <div class="ee-pane" id="p-det" hidden>
+      <div class="ee-card">
+        <header><h2 data-draw="p-nome" data-source="produtos">—</h2><span class="ee-muted ee-small" data-draw="p-sub" data-source="produtos">—</span></header>
+        <div class="ee-kpis">
+          <div class="ee-kpi"><b data-draw="p-k-estoque" data-source="produtos">—</b><span>Em estoque</span></div>
+          <div class="ee-kpi"><b data-draw="p-k-receber" data-source="produtos">—</b><span>Pedido de fábrica em trânsito</span></div>
+          <div class="ee-kpi"><b data-draw="p-k-venda" data-source="produtos">—</b><span>Vendido nos últimos 90 dias</span></div>
+          <div class="ee-kpi"><b data-draw="p-k-cob" data-source="produtos">—</b><span>Cobertura no ritmo de 90 dias</span></div>
+          <div class="ee-kpi"><b data-draw="p-k-preco" data-source="produtos">—</b><span>Preço de tabela</span></div>
+          <div class="ee-kpi"><b data-draw="p-k-custo" data-source="produtos">—</b><span>Custo atual</span></div>
+          <div class="ee-kpi"><b data-draw="p-k-mg" data-source="mensal_produto">—</b><span>Margem em todo o histórico</span></div>
+        </div>
+      </div>
+      <div class="ee-card">
+        <header><h2>Vendas por mês</h2>
+          <div class="ee-seg" id="seg-pm" role="group" aria-label="Medida"><button type="button" data-f="pm" data-v="un" aria-pressed="true">Unidades</button><button type="button" data-f="pm" data-v="fat" aria-pressed="false">Faturamento (R$)</button></div>
+        </header>
+        <div class="ee-chart" id="p-chart" data-draw="p-chart" data-source="mensal_produto"></div>
+      </div>
+      <div class="ee-card" id="p-cores-card" hidden>
+        <header><h2>Cores desta família</h2><span class="ee-muted ee-small">Estoque, pedido e alertas são tratados por cor.</span></header>
+        <div class="ee-tw"><table>
+          <thead><tr><th class="nosort l">Cor ou tecido</th><th class="nosort">Código</th><th class="nosort">Estoque</th><th class="nosort">Em trânsito</th><th class="nosort">Vendido em 90 dias</th><th class="nosort">Cobertura (dias)</th><th class="nosort">Última venda</th></tr></thead>
+          <tbody data-draw="p-cores" data-source="produtos"></tbody>
+        </table></div>
+      </div>
+      <div class="ee-card">
+        <header><h2>Estoque por local</h2><span class="ee-muted ee-small" data-draw="p-locais-sub">—</span></header>
+        <div class="ee-tw"><table>
+          <thead><tr><th class="nosort l">Local</th><th class="nosort">Em estoque</th><th class="nosort">Pedido em trânsito</th></tr></thead>
+          <tbody data-draw="p-locais" data-source="estoque_local"></tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ee-pane" id="alertas" hidden>
+    <div class="ee-alerts" id="al-btns">
+      <button type="button" data-a="ruptura" aria-pressed="true"><b data-draw="al-n-ruptura" data-source="produtos">—</b><span>Em ruptura, com venda recente</span></button>
+      <button type="button" data-a="baixa" aria-pressed="false"><b data-draw="al-n-baixa" data-source="produtos">—</b><span>Cobertura baixa</span></button>
+      <button type="button" data-a="parado" aria-pressed="false"><b data-draw="al-n-parado" data-source="produtos">—</b><span>Parados em estoque</span></button>
+      <button type="button" data-a="transito" aria-pressed="false"><b data-draw="al-n-transito" data-source="produtos">—</b><span>Com pedido de fábrica em trânsito</span></button>
+      <button type="button" data-a="semfab" aria-pressed="false"><b data-draw="al-n-semfab" data-source="produtos">—</b><span>Sem fábrica definida</span></button>
+      <button type="button" data-a="semcusto" aria-pressed="false"><b data-draw="al-n-semcusto" data-source="produtos">—</b><span>Sem custo no sistema</span></button>
+    </div>
+    <div class="ee-card">
+      <header><h2 data-draw="al-titulo">—</h2><span class="ee-muted ee-small" data-draw="al-regras">—</span></header>
+      <div class="ee-tw"><table>
+        <thead><tr><th class="nosort l">Produto</th><th class="nosort l">Fábrica</th><th class="nosort">Estoque</th><th class="nosort">Em trânsito</th><th class="nosort">Vendido em 90 dias</th><th class="nosort">Cobertura (dias)</th><th class="nosort">Última venda</th><th class="nosort">Estoque a custo</th></tr></thead>
+        <tbody data-draw="al-corpo" data-source="produtos"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="ee-pane" id="historico" hidden>
+    <div class="ee-ctl">
+      <div class="ee-seg" id="seg-hg" role="group" aria-label="Agrupar por"><button type="button" data-f="hg" data-v="cat" aria-pressed="true">Categoria</button><button type="button" data-f="hg" data-v="fab" aria-pressed="false">Fábrica</button><button type="button" data-f="hg" data-v="prod" aria-pressed="false">Produto</button></div>
+      <div class="ee-seg" id="seg-hm" role="group" aria-label="Medida"><button type="button" data-f="hm" data-v="fat" aria-pressed="true">Faturamento (R$)</button><button type="button" data-f="hm" data-v="un" aria-pressed="false">Unidades</button><button type="button" data-f="hm" data-v="mg" aria-pressed="false">Margem</button></div>
+      <div class="ee-seg" id="seg-hc" role="group" aria-label="Colunas"><button type="button" data-f="hc" data-v="mes" aria-pressed="true">Por mês</button><button type="button" data-f="hc" data-v="tri" aria-pressed="false">Por trimestre</button></div>
+    </div>
+    <div class="ee-card">
+      <header><h2>Histórico de vendas</h2><span class="ee-muted ee-small" data-draw="h-sub">—</span></header>
+      <div class="ee-tw"><table id="h-tab">
+        <thead data-draw="h-cab" data-source="mensal_produto"></thead>
+        <tbody data-draw="h-corpo" data-source="mensal_produto produtos"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <footer class="ee-note">
+    <p><b>Cores agrupadas.</b> Cada família soma as cores do mesmo modelo e configuração, como o Roupeiro Santiago Plus 3 portas. Os produtos da Gerais Mobili ficam sempre à parte, porque o custo de compra é outro. O agrupamento é um rascunho ainda em validação. Estoque, pedido em trânsito e alertas continuam por cor.</p>
+    <p><b>Como ler.</b> Faturamento é o líquido de produtos: preço de tabela menos o desconto da venda, sem montagem e frete. Margem usa o custo que o Unique registrou em cada venda. Quando o custo veio zerado, usa o maior custo atual do produto.</p>
+    <p>O histórico começa em fevereiro de 2025. Janeiro de 2025 ficou de fora porque o sistema entrou em uso em 15/01. O mês mais recente está em andamento. Estoque negativo no Unique é pedido de fábrica em trânsito e entra aqui como quantidade zero.</p>
+    <p data-draw="rodape" data-source="produtos mensal_produto">—</p>
+  </footer>
+  <div class="ee-tip" id="ee-tip"></div>
+</div>
