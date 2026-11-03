@@ -62,6 +62,10 @@ function BlocoDashboard({ dashboard, resumo }: { dashboard: Dashboard; resumo: R
             ))}
           </div>
           <p className={`text-sm ${COR_TOM[resumo.sinal.tom]}`}>{resumo.sinal.texto}</p>
+          <p className={`mt-auto text-xs ${diasDesde(resumo.referencia) > DIAS_DESATUALIZADO ? 'text-[#fbbf24]' : 'text-[#667085]'}`}>
+            Dados de {dataBR(resumo.referencia)}
+            {diasDesde(resumo.referencia) > DIAS_DESATUALIZADO && ' · desatualizado'}
+          </p>
         </>
       ) : (
         <p className="text-sm text-[#f85149]">Não foi possível ler os dados deste dashboard.</p>
@@ -94,7 +98,7 @@ export default function VisaoGeral() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#e6edf3] tracking-tight">Visão geral</h1>
         <p className="text-[#667085] text-sm mt-1">
-          Dados de {dataBR(manifest.ultima_data_vendas)} · estoque de {dataBR(manifest.snapshot_estoque)} · gerado em{' '}
+          Base de vendas e estoque: vendas até {dataBR(manifest.ultima_data_vendas)} · estoque de {dataBR(manifest.snapshot_estoque)} · gerada em{' '}
           {dataBR(manifest.gerado_em)}
         </p>
       </div>

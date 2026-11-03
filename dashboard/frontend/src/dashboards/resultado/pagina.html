@@ -1,0 +1,94 @@
+<div class="cc" id="cc">
+  <header>
+    <h1>Resultado: DRE e margem</h1>
+    <p class="cc-muted" data-draw="sub" data-source="resultado_info resultado_caixa">—</p>
+  </header>
+  <div class="cc-aviso" data-draw="aviso" data-source="resultado_info resultado_caixa" hidden></div>
+  <nav class="cc-tabs" role="tablist" aria-label="Seções">
+    <button type="button" role="tab" data-tab="cx" aria-selected="true">Resultado de caixa</button>
+    <button type="button" role="tab" data-tab="cp" aria-selected="false">Resultado de competência</button>
+    <button type="button" role="tab" data-tab="mg" aria-selected="false">Margem</button>
+    <button type="button" role="tab" data-tab="co" aria-selected="false">DRE do Unique × Contas a Pagar</button>
+    <button type="button" role="tab" data-tab="dados" aria-selected="false">Origem dos dados</button>
+  </nav>
+
+  <section class="cc-pane" id="cx">
+    <div class="cc-kpis" data-draw="cx-k" data-source="resultado_caixa"></div>
+    <div class="cc-card">
+      <header><h2>Recebido menos pago no mês</h2><span class="cc-muted cc-small">Recebimentos do Contas a Receber e pagamentos do Contas a Pagar, pela data da baixa. Global.</span></header>
+      <div class="cc-legend" data-draw="cx-leg" data-source="resultado_caixa"></div>
+      <div class="cc-chart" data-draw="cx-chart" data-source="resultado_caixa"></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>DRE de caixa</h2><span class="cc-bar"><label class="ck"><input type="checkbox" data-draw="cx-ck" data-source="resultado_caixa"> Mostrar contas</label></span></header>
+      <div class="cc-tw"><table><thead data-draw="cx-h" data-source="resultado_caixa"></thead><tbody data-draw="cx-t" data-source="resultado_caixa resultado_comp"></tbody></table></div>
+      <p class="cc-small cc-muted">Transferências, amortização de empréstimo, parcelamento de impostos e compra de bens ficam fora do resultado operacional, na parte de baixo.</p>
+    </div>
+  </section>
+
+  <section class="cc-pane" id="cp" hidden>
+    <div class="cc-kpis" data-draw="cp-k" data-source="resultado_comp resultado_caixa"></div>
+    <div class="cc-card">
+      <header><h2>Margem bruta menos despesas do mês</h2><span class="cc-muted cc-small">Vendas do mês menos o custo da mercadoria vendida, menos as despesas pagas no mês. Global.</span></header>
+      <div class="cc-legend" data-draw="cp-leg" data-source="resultado_comp resultado_caixa"></div>
+      <div class="cc-chart" data-draw="cp-chart" data-source="resultado_comp resultado_caixa"></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>DRE de competência</h2><span class="cc-bar"><label class="ck"><input type="checkbox" data-draw="cp-ck" data-source="resultado_comp"> Mostrar contas</label></span></header>
+      <div class="cc-tw"><table><thead data-draw="cp-h" data-source="resultado_comp"></thead><tbody data-draw="cp-t" data-source="resultado_comp resultado_caixa"></tbody></table></div>
+      <p class="cc-small cc-muted" data-draw="cp-nota" data-source="resultado_comp"></p>
+    </div>
+  </section>
+
+  <section class="cc-pane" id="mg" hidden>
+    <div class="cc-bar">
+      <select id="m-de" data-draw="m-de" data-source="resultado_margem" aria-label="De"></select>
+      <select id="m-ate" data-draw="m-ate" data-source="resultado_margem" aria-label="Até"></select>
+      <select id="m-loja" data-draw="m-loja" data-source="resultado_margem" aria-label="Loja"></select>
+      <select id="m-dim" data-draw="m-dim" data-source="resultado_margem" aria-label="Agrupar por"></select>
+      <input type="search" id="m-q" placeholder="Buscar" aria-label="Buscar" data-draw="m-q" data-source="resultado_margem">
+    </div>
+    <div class="cc-kpis" data-draw="mg-k" data-source="resultado_margem"></div>
+    <div class="cc-card">
+      <header><h2 data-draw="mg-tit" data-source="resultado_margem">Margem</h2><span class="cc-muted cc-small">Maiores margens em reais no período.</span></header>
+      <div class="cc-chart" data-draw="mg-chart" data-source="resultado_margem"></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Detalhe</h2><span class="cc-muted cc-small">Clique no título de uma coluna para ordenar.</span></header>
+      <div class="cc-tw"><table>
+        <thead data-t="m"><tr><th class="l" data-sort="nome">Item</th><th data-sort="un">Unidades</th><th data-sort="liquido">Faturamento</th><th data-sort="custo">Custo</th><th data-sort="margem">Margem R$</th><th data-sort="mpct">Margem %</th><th data-sort="desc">Desconto</th><th data-sort="share">% da margem</th></tr></thead>
+        <tbody data-draw="mg-t" data-source="resultado_margem"></tbody>
+      </table></div>
+      <p class="cc-small cc-muted" data-draw="mg-nota" data-source="resultado_margem"></p>
+    </div>
+  </section>
+
+  <section class="cc-pane" id="co" hidden>
+    <div class="cc-card">
+      <header><h2>O que o DRE do Unique mostra e o que foi pago</h2>
+        <span class="cc-bar"><select id="co-m" data-draw="co-m" data-source="resultado_conc" aria-label="Mês"></select></span></header>
+      <p class="cc-small cc-muted">Despesas do mês por conta do plano de contas. A diferença é o que o DRE do Unique soma de outro jeito: onde há valor em um lado e zero no outro, a conta contábil ou a classificação do pagamento precisa de ajuste.</p>
+      <div class="cc-tw"><table>
+        <thead><tr><th class="l">Conta</th><th>DRE do Unique</th><th>Contas a Pagar</th><th>Diferença</th></tr></thead>
+        <tbody data-draw="co-t" data-source="resultado_conc"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="cc-pane" id="dados" hidden>
+    <div class="cc-card"><header><h2>De onde vêm os números</h2></header>
+      <div class="cc-note" data-draw="d-info" data-source="resultado_info"></div></div>
+    <div class="cc-card"><header><h2>Regras aplicadas</h2></header>
+      <div class="cc-note">
+        <p>Tudo Global por enquanto. Os dados já têm a coluna de loja, então separar por loja é trocar a fonte, não refazer a página.</p>
+        <p>Resultado de caixa: o que foi recebido (Contas a Receber) menos o que foi pago (Contas a Pagar) no mês, pela data da baixa e pelo plano de contas de cada lançamento. Mercadoria para revenda entra aqui pelo que foi pago aos fornecedores. Enquanto a baixa do Contas a Receber estiver em andamento, o recebido fica subestimado.</p>
+        <p>Resultado de competência: receita das vendas do mês (produtos e serviços cobrados) menos devoluções, menos o custo da mercadoria vendida (CMV, o custo que o Unique registrou em cada venda), menos as despesas do mês. As despesas são as pagas no mês (Contas a Pagar), sem a conta de mercadoria para revenda, que o CMV substitui. Frete e ICMS sobre compras ficam nas despesas.</p>
+        <p>Fora do resultado operacional, em linha à parte: transferência enviada, amortização e consórcio, parcelamento de impostos (passivo tributário) e aquisição de bens. Despesa de entrega, montagem e depósito usam contas criadas depois do plano de contas de julho; a máscara de Montagem é suposição até chegar o plano novo.</p>
+        <p>Margem: faturamento de produtos menos custo, só nas vendas que têm custo. Desconto é a diferença entre o preço de tabela e o faturamento. Montagem e frete cobrados não entram na margem de produto.</p>
+        <p>Corte do resultado: setembro de 2026 em diante, porque o financeiro anterior ainda está sendo organizado. A margem vai mais atrás, até o começo da base de vendas.</p>
+      </div>
+    </div>
+  </section>
+  <div class="cc-tip" id="cc-tip"></div>
+</div>
+

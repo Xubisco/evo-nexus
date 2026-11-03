@@ -19,6 +19,8 @@ export interface Destaque {
 }
 
 export interface Resumo {
+  // Data dos dados deste dashboard (AAAA-MM-DD); cada um tem a sua fonte e o seu ritmo de atualização
+  referencia: string
   destaques: Destaque[]
   sinal: { texto: string; tom: Tom }
 }

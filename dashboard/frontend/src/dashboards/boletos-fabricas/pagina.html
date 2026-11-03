@@ -1,0 +1,93 @@
+<div class="cc" id="cc">
+  <header>
+    <h1>Boletos × Faturamento por fábrica</h1>
+    <p class="cc-muted" data-draw="sub" data-source="boletos_janela boletos_info">—</p>
+  </header>
+
+  <div class="cc-aviso" data-draw="aviso" data-source="boletos_info" hidden></div>
+
+  <div class="cc-bar">
+    <label class="cc-muted cc-small" for="f-grupo">Fábricas</label>
+    <select id="f-grupo" data-draw="f-grupo" data-source="boletos_info" aria-label="Fábricas"></select>
+  </div>
+
+  <nav class="cc-tabs" role="tablist" aria-label="Seções">
+    <button type="button" role="tab" data-tab="janelas" aria-selected="true">Janelas de 10 dias</button>
+    <button type="button" role="tab" data-tab="fabricas" aria-selected="false">Fábrica × janela</button>
+    <button type="button" role="tab" data-tab="resumo" aria-selected="false">Resumo por fábrica</button>
+    <button type="button" role="tab" data-tab="dados" aria-selected="false">Origem dos dados</button>
+  </nav>
+
+  <section class="cc-pane" id="janelas">
+    <div class="cc-kpis">
+      <div class="cc-kpi"><b data-draw="k-fat" data-source="boletos_janela">—</b><em data-draw="k-fat-d" data-source="boletos_janela"></em><span>Faturamento das fábricas</span></div>
+      <div class="cc-kpi"><b data-draw="k-bol" data-source="boletos_janela">—</b><em data-draw="k-bol-d" data-source="boletos_janela"></em><span>Boletos de mercadoria</span></div>
+      <div class="cc-kpi"><b data-draw="k-fre" data-source="boletos_janela">—</b><em data-draw="k-fre-d" data-source="boletos_janela"></em><span>Frete sobre compras</span></div>
+      <div class="cc-kpi"><b data-draw="k-saldo" data-source="boletos_janela">—</b><em data-draw="k-saldo-d" data-source="boletos_janela"></em><span>Saldo até a janela atual</span></div>
+      <div class="cc-kpi"><b data-draw="k-fut" data-source="boletos_janela">—</b><em data-draw="k-fut-d" data-source="boletos_janela"></em><span>Boletos e frete a vencer</span></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Faturamento contra boletos, janela a janela</h2><span class="cc-muted cc-small">Boleto conta pelo vencimento. Nas janelas futuras só existem boletos: é a venda mínima para cobri-los.</span></header>
+      <div class="cc-legend" data-draw="j-leg" data-source="boletos_janela"></div>
+      <div class="cc-chart" data-draw="j-chart" data-source="boletos_janela"></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Quanto falta vender</h2><span class="cc-muted cc-small">Saldo da janela = faturamento − boletos − frete. O excedente de uma fábrica cobre o déficit de outra.</span></header>
+      <div class="cc-tw"><table>
+        <thead><tr><th class="l">Janela</th><th>Fase</th><th>Faturamento</th><th>Boletos</th><th>Frete</th><th>Saldo</th><th>Venda mínima</th><th>Fábricas a queimar</th></tr></thead>
+        <tbody data-draw="j-t" data-source="boletos_janela"></tbody>
+      </table></div>
+      <p class="cc-small cc-muted">Venda mínima é o que precisa faturar na janela para pagar boletos e frete dela. Fábrica a queimar é a que tem boleto maior que o próprio faturamento na janela.</p>
+    </div>
+  </section>
+
+  <section class="cc-pane" id="fabricas" hidden>
+    <div class="cc-card">
+      <header><h2>Fábrica × janela</h2>
+        <span class="cc-bar"><label class="cc-muted cc-small" for="f-medida">Mostrar</label>
+        <select id="f-medida" data-draw="f-medida" data-source="boletos_janela" aria-label="Medida"></select></span>
+      </header>
+      <div class="cc-tw"><table>
+        <thead data-draw="m-h" data-source="boletos_janela"></thead>
+        <tbody data-draw="m-t" data-source="boletos_janela"></tbody>
+      </table></div>
+      <p class="cc-small cc-muted">Em vermelho, saldo negativo: boleto e frete maiores que o faturamento da fábrica na janela, candidata a campanha de queima. Janelas em itálico ainda não aconteceram. Valores em mil reais.</p>
+    </div>
+  </section>
+
+  <section class="cc-pane" id="resumo" hidden>
+    <div class="cc-card">
+      <header><h2>Resumo por fábrica</h2><span class="cc-muted cc-small">De 01/08 até a última janela com boleto.</span></header>
+      <div class="cc-tw"><table>
+        <thead><tr><th class="l">Fábrica</th><th>Faturamento</th><th>Boleto pago</th><th>Boleto em aberto</th><th>Frete</th><th>Saldo</th><th>Janelas a queimar</th></tr></thead>
+        <tbody data-draw="r-t" data-source="boletos_fabrica"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="cc-pane" id="dados" hidden>
+    <div class="cc-card">
+      <header><h2>De onde vêm os números</h2></header>
+      <div class="cc-note" data-draw="d-info" data-source="boletos_info"></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Regras aplicadas</h2></header>
+      <div class="cc-note">
+        <p>Boleto de fábrica é o que está no centro de custo Mercadoria para revenda-Fábrica. Frete sobre compras é conta à parte por fábrica.</p>
+        <p>Saem dos boletos: fatura de cartão do Mercado Pago, Paulo Ferreira, Carrefour e Magalupay. Eletros, utensílios e as marcas JW e RV saem do faturamento.</p>
+        <p>Faturamento é o líquido de produtos da base, sem montagem e frete, e a fábrica vem do nome do produto. Venda ou boleto sem fábrica identificada fica na lista abaixo, nunca é chutado.</p>
+        <p>Compras na Gerais Mobili e no Ponto Caza entram na fábrica de origem do produto, a partir dos itens dos pedidos.</p>
+        <p>Boleto aparece como pago quando tem data de pagamento no export. A baixa é feita no dia seguinte, então o pago está completo até o dia anterior ao export.</p>
+      </div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Pendências e exclusões</h2></header>
+      <div class="cc-tw"><table>
+        <thead><tr><th class="l">Tipo</th><th class="l">Item</th><th>Valor</th></tr></thead>
+        <tbody data-draw="p-t" data-source="boletos_pendencias"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <div class="cc-tip" id="cc-tip"></div>
+</div>

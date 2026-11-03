@@ -1,0 +1,97 @@
+<div class="cc" id="cc">
+  <header>
+    <h1>Funil Online</h1>
+    <p class="cc-muted" data-draw="sub" data-source="funil_dia funil_info">—</p>
+  </header>
+
+  <div class="cc-bar">
+    <label class="cc-muted cc-small" for="f-mes">Período</label>
+    <select id="f-mes" data-draw="f-mes" data-source="funil_dia" aria-label="Período"></select>
+  </div>
+
+  <nav class="cc-tabs" role="tablist" aria-label="Seções">
+    <button type="button" role="tab" data-tab="funil" aria-selected="true">Funil</button>
+    <button type="button" role="tab" data-tab="semanas" aria-selected="false">Semana a semana</button>
+    <button type="button" role="tab" data-tab="campanhas" aria-selected="false">Campanhas</button>
+    <button type="button" role="tab" data-tab="atendimento" aria-selected="false">Atendimento</button>
+  </nav>
+
+  <section class="cc-pane" id="funil">
+    <div class="cc-kpis">
+      <div class="cc-kpi"><b data-draw="k-roas" data-source="funil_dia">—</b><em data-draw="k-roas-d" data-source="funil_dia"></em><span>ROAS Global</span></div>
+      <div class="cc-kpi"><b data-draw="k-fat" data-source="funil_dia">—</b><em data-draw="k-fat-d" data-source="funil_dia"></em><span>Faturamento da loja Online</span></div>
+      <div class="cc-kpi"><b data-draw="k-gasto" data-source="funil_dia">—</b><em data-draw="k-gasto-d" data-source="funil_dia"></em><span>Gasto no Meta</span></div>
+      <div class="cc-kpi"><b data-draw="k-cac" data-source="funil_dia">—</b><em data-draw="k-cac-d" data-source="funil_dia"></em><span>CAC, gasto por pedido</span></div>
+      <div class="cc-kpi"><b data-draw="k-conv" data-source="funil_dia">—</b><em data-draw="k-conv-d" data-source="funil_dia"></em><span>Conversas iniciadas</span></div>
+      <div class="cc-kpi"><b data-draw="k-gan" data-source="funil_dia funil_info">—</b><em data-draw="k-gan-d" data-source="funil_dia funil_info"></em><span>Negócios ganhos</span></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Do anúncio ao pedido</h2><span class="cc-muted cc-small">Cada barra na mesma escala. O custo é o gasto total no Meta dividido pela quantidade da etapa.</span></header>
+      <div class="cc-etapas" data-draw="f-etapas" data-source="funil_dia funil_info"></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Como ler</h2></header>
+      <p class="cc-small">ROAS Global é o faturamento da loja Online no ERP, com montagem e frete, dividido pelo gasto total no Meta. Inclui venda que não veio de anúncio.</p>
+      <p class="cc-small">CAC é o gasto no Meta dividido pelos pedidos da loja Online. Conversas iniciadas vêm do Meta. Negócios criados e ganhos vêm do DataCrazy. Pedidos vêm do ERP. As etapas não são uma fila única: o DataCrazy cria negócios que não vieram de anúncio, e parte das vendas ganhas é faturada em outra loja.</p>
+    </div>
+  </section>
+
+  <section class="cc-pane" id="semanas" hidden>
+    <div class="cc-card">
+      <header><h2>Gasto e faturamento por semana</h2><span class="cc-muted cc-small">Semanas começam na segunda. A primeira e a última podem estar incompletas.</span></header>
+      <div class="cc-legend" data-draw="w-leg" data-source="funil_dia"></div>
+      <div class="cc-chart" id="w-chart" data-draw="w-chart" data-source="funil_dia"></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Semana a semana</h2><span class="cc-muted cc-small">Todo o período, sem o filtro de mês.</span></header>
+      <div class="cc-tw"><table>
+        <thead><tr><th class="l">Semana</th><th>Dias</th><th>Gasto</th><th>Conversas</th><th>Negócios criados</th><th>Ganhos</th><th>Pedidos Online</th><th>Faturamento</th><th>ROAS</th><th>CAC</th></tr></thead>
+        <tbody data-draw="w-t" data-source="funil_dia"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="cc-pane" id="campanhas" hidden>
+    <div class="cc-grid">
+      <div class="cc-card">
+        <header><h2>Gasto por objetivo</h2><span class="cc-muted cc-small">Agrupado pelo número no nome da campanha.</span></header>
+        <div class="cc-tw"><table>
+          <thead><tr><th class="l">Objetivo</th><th>Gasto</th><th>% do gasto</th><th>Conversas</th><th>Custo por conversa</th></tr></thead>
+          <tbody data-draw="c-obj" data-source="funil_campanha_mes"></tbody>
+        </table></div>
+      </div>
+      <div class="cc-card">
+        <header><h2>Gasto por grupo de campanha</h2><span class="cc-muted cc-small">Os grupos vêm de uma lista que você pode ajustar.</span></header>
+        <div class="cc-tw"><table>
+          <thead><tr><th class="l">Grupo</th><th class="l">Objetivo</th><th>Campanhas</th><th>Gasto</th><th>Conversas</th><th>Custo por conversa</th></tr></thead>
+          <tbody data-draw="c-grp" data-source="funil_campanha_mes"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Maiores campanhas</h2><span class="cc-muted cc-small">As que mais gastaram no período escolhido.</span></header>
+      <div class="cc-tw"><table>
+        <thead><tr><th class="l">Campanha</th><th class="l">Grupo</th><th>Gasto</th><th>Conversas</th><th>Custo por conversa</th><th>CTR</th></tr></thead>
+        <tbody data-draw="c-top" data-source="funil_campanha_mes"></tbody>
+      </table></div>
+    </div>
+    <p class="cc-note">O Meta só registra compras a partir de outubro, então o ROAS por campanha atribuído pelo Meta não entra aqui. O retorno vem do ERP, para a loja inteira.</p>
+  </section>
+
+  <section class="cc-pane" id="atendimento" hidden>
+    <div class="cc-card">
+      <header><h2>Negócios do DataCrazy por semana de criação</h2><span class="cc-muted cc-small">Ganho é o status de hoje. Semanas recentes ainda estão amadurecendo.</span></header>
+      <div class="cc-tw"><table>
+        <thead><tr><th class="l">Semana</th><th>Dias</th><th>Criados</th><th>Sem atendente</th><th>% sem atendente</th><th>Ganhos</th><th>Taxa de ganho</th><th>Valor ganho</th><th>Ticket médio</th></tr></thead>
+        <tbody data-draw="a-sem" data-source="funil_dia"></tbody>
+      </table></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Onde estão os negócios hoje</h2><span class="cc-muted cc-small">Etapa atual dos negócios criados em cada semana.</span></header>
+      <div class="cc-tw" data-draw="a-et" data-source="funil_etapa_semana"></div>
+    </div>
+  </section>
+
+  <p class="cc-note" data-draw="f-nota" data-source="funil_info">—</p>
+  <div class="cc-tip" id="cc-tip"></div>
+</div>

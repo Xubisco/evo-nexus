@@ -1,0 +1,145 @@
+<div class="cc" id="cc">
+  <header>
+    <h1>Caixa e Contas</h1>
+    <p class="cc-muted" data-draw="sub" data-source="caixa_lojas posicao_financeira">—</p>
+  </header>
+
+  <section class="cc-kpis" aria-label="Caixa de hoje">
+    <div class="cc-kpi"><b data-draw="k-din" data-source="caixa_lojas">—</b><em data-draw="k-din-d" data-source="caixa_lojas"></em><span>Dinheiro nos caixas ao fechar</span></div>
+    <div class="cc-kpi"><b data-draw="k-vend" data-source="caixa_formas">—</b><em></em><span>Vendas do dia</span></div>
+    <div class="cc-kpi"><b data-draw="k-pend" data-source="caixa_formas">—</b><em data-draw="k-pend-d" data-source="caixa_formas"></em><span>Venda do dia ainda a receber</span></div>
+    <div class="cc-kpi"><b data-draw="k-tit" data-source="caixa_formas">—</b><em></em><span>Recebimento de títulos</span></div>
+    <div class="cc-kpi"><b data-draw="k-sang" data-source="caixa_movimentos">—</b><em data-draw="k-sang-d" data-source="caixa_movimentos"></em><span>Sangrias do dia</span></div>
+  </section>
+
+  <nav class="cc-tabs" role="tablist" aria-label="Seções">
+    <button type="button" role="tab" data-tab="caixa" aria-selected="true">Caixa de hoje</button>
+    <button type="button" role="tab" data-tab="formas" aria-selected="false">Formas de pagamento</button>
+    <button type="button" role="tab" data-tab="pagar" aria-selected="false">A pagar</button>
+    <button type="button" role="tab" data-tab="receber" aria-selected="false">A receber</button>
+  </nav>
+
+  <section class="cc-pane" id="caixa">
+    <div class="cc-grid">
+      <div class="cc-card">
+        <header><h2>Caixas das lojas</h2><span class="cc-muted cc-small" data-draw="c-sub" data-source="caixa_lojas">—</span></header>
+        <div class="cc-tw"><table>
+          <thead><tr><th class="l">Loja</th><th class="l">Operador</th><th class="l">Situação</th><th>Abriu</th><th>Fechou</th><th>Saldo em dinheiro</th></tr></thead>
+          <tbody data-draw="c-lojas" data-source="caixa_lojas"></tbody>
+        </table></div>
+      </div>
+      <div class="cc-card">
+        <header><h2>Vendas do dia por forma de pagamento</h2><span class="cc-muted cc-small">A pendência é venda ainda não recebida.</span></header>
+        <div class="cc-chart" id="c-formas" data-draw="c-formas" data-source="caixa_formas"></div>
+      </div>
+    </div>
+    <div class="cc-grid">
+      <div class="cc-card">
+        <header><h2>Outras entradas do dia</h2><span class="cc-muted cc-small">Fora das vendas do dia.</span></header>
+        <div class="cc-tw"><table>
+          <thead><tr><th class="l">Origem</th><th class="l">Forma</th><th>Valor</th></tr></thead>
+          <tbody data-draw="c-outras" data-source="caixa_formas"></tbody>
+        </table></div>
+      </div>
+      <div class="cc-card">
+        <header><h2>Movimentos de caixa</h2><span class="cc-muted cc-small">Sangrias, aberturas e fundos.</span></header>
+        <div class="cc-tw"><table>
+          <thead><tr><th class="l">Hora</th><th class="l">Loja</th><th class="l">Tipo</th><th class="l">Motivo</th><th>Valor</th></tr></thead>
+          <tbody data-draw="c-mov" data-source="caixa_movimentos"></tbody>
+        </table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cc-pane" id="formas" hidden>
+    <div class="cc-card">
+      <header><h2>Como os clientes pagam</h2><span class="cc-muted cc-small">Faturamento por mês e forma de pagamento. Venda com mais de uma forma é dividida em partes iguais.</span></header>
+      <div class="cc-legend" data-draw="f-leg"></div>
+      <div class="cc-chart" id="f-chart" data-draw="f-chart" data-source="pagamento_mes"></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Vendido em formas que ficam em cobrança</h2><span class="cc-muted cc-small" data-draw="f-regra">—</span></header>
+      <div class="cc-tw"><table>
+        <thead><tr><th class="l">Mês</th><th>Faturamento</th><th>Em cobrança</th><th>% do mês</th><th>Pagamento na entrega</th><th>Crediário da casa</th><th>Vale</th></tr></thead>
+        <tbody data-draw="f-cobr" data-source="pagamento_mes"></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section class="cc-pane" id="pagar" hidden>
+    <div class="cc-kpis">
+      <div class="cc-kpi"><b data-draw="p-total" data-source="pagar_resumo">—</b><em data-draw="p-total-d" data-source="pagar_resumo"></em><span>Total a pagar, com bancos</span></div>
+      <div class="cc-kpi"><b data-draw="p-op" data-source="pagar_resumo">—</b><em data-draw="p-op-d" data-source="pagar_resumo"></em><span>A pagar operacional</span></div>
+      <div class="cc-kpi"><b data-draw="p-banc" data-source="pagar_resumo">—</b><em data-draw="p-banc-d" data-source="pagar_resumo"></em><span>Débitos bancários</span></div>
+      <div class="cc-kpi"><b data-draw="p-conc" data-source="pagar_resumo">—</b><em></em><span>A conciliar, fora dos totais</span></div>
+      <div class="cc-kpi"><b data-draw="p-lan" data-source="lancamentos_mes">—</b><em data-draw="p-lan-d" data-source="lancamentos_mes"></em><span data-draw="p-lan-l">Lançado no mês</span></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Débitos bancários</h2><span class="cc-muted cc-small">Empréstimos, acordos e aditamentos, uma linha por banco. Não entram no operacional.</span></header>
+      <div class="cc-tw"><table>
+        <thead><tr><th class="l">Banco</th><th class="l">Situação</th><th>Saldo restante</th><th>Vencido</th><th>A vencer</th><th>Parcelas abertas</th><th>Próxima parcela</th><th>Última parcela</th></tr></thead>
+        <tbody data-draw="p-banc-t" data-source="pagar_bancos"></tbody>
+      </table></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Títulos bancários</h2><span class="cc-muted cc-small">Cada título que compõe os saldos acima.</span></header>
+      <div class="cc-tw"><table>
+        <thead><tr><th class="l">Banco</th><th class="l">Título</th><th>Saldo restante</th><th>Parcelas abertas</th><th>Próximo vencimento</th></tr></thead>
+        <tbody data-draw="p-bt-t" data-source="pagar_bancos_titulos"></tbody>
+      </table></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Vencimentos por semana</h2><span class="cc-muted cc-small">Parcelas das próximas semanas. As seguintes à primeira de cada título são estimadas.</span></header>
+      <div class="cc-legend" data-draw="p-sem-leg" data-source="pagar_semana"></div>
+      <div class="cc-chart" id="p-sem" data-draw="p-sem" data-source="pagar_semana"></div>
+    </div>
+    <div class="cc-grid">
+      <div class="cc-card">
+        <header><h2>Por mês</h2><span class="cc-muted cc-small">Os meses que já passaram mostram só o que continua em aberto.</span></header>
+        <div class="cc-tw"><table>
+          <thead><tr><th class="l">Mês</th><th>Operacional</th><th>Débitos bancários</th><th>Total</th></tr></thead>
+          <tbody data-draw="p-mes-t" data-source="pagar_mes"></tbody>
+        </table></div>
+      </div>
+      <div class="cc-card">
+        <header><h2>Por categoria</h2><span class="cc-muted cc-small">Saldo restante, pela descrição do título.</span></header>
+        <div class="cc-tw"><table>
+          <thead><tr><th class="l">Categoria</th><th>Títulos</th><th>Saldo restante</th><th>A conciliar</th></tr></thead>
+          <tbody data-draw="p-cat-t" data-source="pagar_categoria"></tbody>
+        </table></div>
+      </div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Contas lançadas por mês</h2><span class="cc-muted cc-small">Todas as empresas juntas, como o Unique informa. Só setembro em diante.</span></header>
+      <div class="cc-tw"><table>
+        <thead><tr><th class="l">Mês</th><th>A pagar lançado</th><th>A receber lançado</th></tr></thead>
+        <tbody data-draw="p-lan-t" data-source="lancamentos_mes"></tbody>
+      </table></div>
+    </div>
+    <p class="cc-note" data-draw="p-regra" data-source="pagar_resumo">—</p>
+    <p class="cc-note" data-draw="p-nota" data-source="pagar_qualidade">—</p>
+  </section>
+
+  <section class="cc-pane" id="receber" hidden>
+    <div class="cc-kpis">
+      <div class="cc-kpi"><b data-draw="r-cobr" data-source="pagamento_mes">—</b><em data-draw="r-cobr-d" data-source="pagamento_mes"></em><span data-draw="r-cobr-l">Vendido em cobrança no mês</span></div>
+      <div class="cc-kpi"><b data-draw="r-aberto" data-source="posicao_financeira">—</b><em></em><span>A receber em aberto no Unique</span></div>
+      <div class="cc-kpi"><b data-draw="r-venc" data-source="posicao_financeira">—</b><em></em><span>Vencido no Unique</span></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>O que ainda depende de baixa</h2></header>
+      <p>Cartão, PIX, dinheiro, financeira e link de pagamento são tratados como recebidos. Ficam em cobrança o pagamento na entrega (parcelado e à vista), o crediário da casa e o vale. A tabela por mês está na aba Formas de pagamento.</p>
+      <p class="cc-muted">Os valores em aberto do Unique ainda não passaram pela baixa. Eles mostram o que o sistema acha que falta, não o que falta de verdade. Quando as baixas forem feitas, este quadro passa a mostrar o saldo real das formas em cobrança.</p>
+    </div>
+    <div class="cc-card">
+      <header><h2>Vendido em cobrança, mês a mês</h2><span class="cc-muted cc-small">Valor vendido, sem descontar o que já foi pago.</span></header>
+      <div class="cc-chart" id="r-chart" data-draw="r-chart" data-source="pagamento_mes"></div>
+    </div>
+  </section>
+
+  <footer class="cc-note">
+    <p><b>Como ler.</b> Tudo aqui é da empresa inteira, sem separar por loja. Só o caixa do dia aparece por loja, porque cada loja tem o seu caixa.</p>
+    <p data-draw="rodape" data-source="caixa_lojas pagamento_mes">—</p>
+  </footer>
+  <div class="cc-tip" id="cc-tip"></div>
+</div>

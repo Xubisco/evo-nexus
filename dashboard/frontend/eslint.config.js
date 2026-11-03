@@ -6,7 +6,9 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // As páginas dos dashboards são cópia fiel das referências (Artifacts): ficam como vieram,
+  // para que uma nova versão possa ser portada e comparada com a anterior.
+  globalIgnores(['dist', 'src/dashboards/*/logica.ts']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

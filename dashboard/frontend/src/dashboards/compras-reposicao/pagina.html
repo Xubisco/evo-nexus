@@ -1,0 +1,67 @@
+<div class="cc" id="cc">
+  <header>
+    <h1>Compras e Reposição</h1>
+    <p class="cc-muted" data-draw="sub" data-source="reposicao_produto reposicao_info">—</p>
+  </header>
+  <div class="cc-aviso" data-draw="aviso" data-source="reposicao_info reposicao_fabrica" hidden></div>
+  <div class="cc-bar">
+    <details class="cc-multi" id="f-fab" data-draw="f-fab" data-source="reposicao_produto reposicao_fabrica"></details>
+    <select id="f-ritmo" data-draw="f-ritmo" data-source="reposicao_info" aria-label="Ritmo de venda"></select>
+    <select id="f-saz" data-draw="f-saz" data-source="reposicao_info" aria-label="Sazonalidade"></select>
+    <select id="f-hor" data-draw="f-hor" data-source="reposicao_info" aria-label="Cobrir depois da chegada"></select>
+    <select id="f-agr" data-draw="f-agr" data-source="reposicao_info" aria-label="Agrupamento"></select>
+  </div>
+  <nav class="cc-tabs" role="tablist" aria-label="Seções">
+    <button type="button" role="tab" data-tab="cob" aria-selected="true">Cobertura e ruptura</button>
+    <button type="button" role="tab" data-tab="ped" aria-selected="false">Pedido sugerido por fábrica</button>
+    <button type="button" role="tab" data-tab="dados" aria-selected="false">Origem dos dados</button>
+  </nav>
+  <section class="cc-pane" id="cob">
+    <div class="cc-kpis">
+      <div class="cc-kpi"><b data-draw="k-urg" data-source="reposicao_produto">—</b><em data-draw="k-urg-d" data-source="reposicao_produto"></em><span>Ruptura em até 30 dias</span></div>
+      <div class="cc-kpi"><b data-draw="k-zer" data-source="reposicao_produto">—</b><em data-draw="k-zer-d" data-source="reposicao_produto"></em><span>Zerados com venda</span></div>
+      <div class="cc-kpi"><b data-draw="k-ped" data-source="reposicao_produto reposicao_fabrica">—</b><em data-draw="k-ped-d" data-source="reposicao_produto reposicao_fabrica"></em><span>Pedido sugerido</span></div>
+      <div class="cc-kpi"><b data-draw="k-cap" data-source="reposicao_produto">—</b><em data-draw="k-cap-d" data-source="reposicao_produto"></em><span>Estoque de venda a custo</span></div>
+      <div class="cc-kpi"><b data-draw="k-sg" data-source="reposicao_produto">—</b><em data-draw="k-sg-d" data-source="reposicao_produto"></em><span>Parado, sem giro</span></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>O que falta primeiro</h2>
+        <span class="cc-bar"><select id="f-sec" data-draw="f-sec" data-source="reposicao_info" aria-label="Depois ordenar por"></select><input type="search" id="f-q" placeholder="Buscar produto" aria-label="Buscar produto" data-draw="f-q" data-source="reposicao_info"></span></header>
+      <div class="cc-chk" data-draw="c-chk" data-source="reposicao_produto reposicao_fabrica"></div>
+      <div class="cc-tw"><table>
+        <thead data-t="c"><tr><th class="l" data-sort="nome">Produto</th><th class="l" data-sort="fab">Fábrica</th><th data-sort="estoque">Estoque de venda</th><th data-sort="a_receber">A receber</th><th data-sort="mostruario">Mostruário</th><th data-sort="encalhe">Encalhe (incluído)</th><th data-sort="vd">Venda/dia</th><th data-sort="cob">Ruptura em</th><th data-sort="pedir">Pedir até</th><th data-sort="qtd">Qtd sugerida</th><th data-sort="val">Valor</th><th class="l" data-sort="sit">Situação</th></tr></thead>
+        <tbody data-draw="c-t" data-source="reposicao_produto reposicao_fabrica"></tbody>
+      </table></div>
+      <p class="cc-small cc-muted" data-draw="c-nota" data-source="reposicao_produto"></p>
+    </div>
+  </section>
+  <section class="cc-pane" id="ped" hidden>
+    <div class="cc-card">
+      <header><h2>Valor sugerido por fábrica</h2><span class="cc-muted cc-small">Quantidade × custo atual, sem frete.</span></header>
+      <div class="cc-chart" data-draw="p-chart" data-source="reposicao_produto reposicao_fabrica"></div>
+    </div>
+    <div class="cc-card">
+      <header><h2>Por fábrica</h2></header>
+      <div class="cc-tw"><table>
+        <thead data-t="p"><tr><th class="l" data-sort="fab">Fábrica</th><th data-sort="lead">Lead</th><th data-sort="seg">Segurança</th><th data-sort="n">Itens a pedir</th><th data-sort="qtd">Unidades</th><th data-sort="val">Valor</th><th data-sort="pedir">Pedir até (mais urgente)</th><th class="l" data-sort="fonte">Lead time</th></tr></thead>
+        <tbody data-draw="p-t" data-source="reposicao_produto reposicao_fabrica"></tbody>
+      </table></div>
+    </div>
+  </section>
+  <section class="cc-pane" id="dados" hidden>
+    <div class="cc-card"><header><h2>De onde vêm os números</h2></header>
+      <div class="cc-note" data-draw="d-info" data-source="reposicao_info"></div></div>
+    <div class="cc-card"><header><h2>Como a conta é feita</h2></header>
+      <div class="cc-note">
+        <p>Venda por dia = unidades vendidas na janela escolhida ÷ dias da janela, vezes o fator de sazonalidade.</p>
+        <p>Ruptura em (dias) = estoque físico ÷ venda por dia, arredondado para cima. O que está a receber não entra: se o pedido não chegar, o produto rompe. Pedir até = hoje + ruptura em dias − lead time − segurança.</p>
+        <p>Quantidade sugerida = venda por dia × (lead + segurança + dias a cobrir depois da chegada) − estoque − a receber. Valor = quantidade × custo atual.</p>
+        <p>Situação, pela cobertura do estoque físico (estoque ÷ venda por dia): Zerado (estoque 0 e com venda), Rupt 30d (acaba em até 30 dias), Rupt 60d (de 31 a 60 dias), Rupt 90d (de 61 a 90 dias), OK (mais de 90 dias de cobertura) e Sem giro (tem estoque e nenhuma venda na janela). O que está a receber não entra na situação; aparece na coluna A receber.</p>
+        <p>Ruptura e cobertura contam o Depósito mais o Encalhe (Depósito Extra), que pode ser vendido. O Mostruário (as lojas) aparece numa coluna à parte e não entra na conta. A coluna Encalhe mostra quanto do estoque de venda vem do encalhe. O que está a receber vem da própria posição de estoque; o ERP não baixa recebimento de compra, então pedido antigo pode seguir ali.</p>
+        <p>Não entram ainda: piso mínimo da Panan (Liz 10, Blumenau 5, Flora 5), estoque reservado e exclusões de fábrica (Demobile, ACP). Lead time por fábrica fica em fontes/fabricas_parametros.csv.</p>
+      </div>
+    </div>
+  </section>
+  <div class="cc-tip" id="cc-tip"></div>
+</div>
+
